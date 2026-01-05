@@ -146,7 +146,7 @@ jobs:
           *By @peternoz*
 
           *🌟 Check out my builder source:*
-          https://github.com/peternmuller/revanced-builder
+          https://github.com/peternmuller/revanced-morphe-builder
           "
           echo "'$MSG'"
           MSG=${MSG:0:9450}

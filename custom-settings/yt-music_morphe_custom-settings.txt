@@ -1,0 +1,2 @@
+"custom_branding_icon": "original",
+"music_change_miniplayer_color": true
