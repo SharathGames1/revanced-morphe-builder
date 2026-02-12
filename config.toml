@@ -10,19 +10,18 @@ apkmirror-dlurl = "https://apkmirror.com/apk/google-inc/youtube/"
 uptodown-dlurl = "https://youtube.en.uptodown.com/android"
 patches-source = "anddea/revanced-patches"
 cli-source = "inotia00/revanced-cli"
-rv-brand = "ReVanced anddea"
 build-mode = "both"
 version = "20.25.37"
 patcher-args = "-i 'Hide ads' -i 'Alternative thumbnails' -i 'Bypass image region restrictions' -i 'Hide feed components' -i 'Hide feed flyout menu' -i 'Disable forced auto audio tracks' -i 'Disable forced auto captions' -i 'Hide layout components' -i 'Remove viewer discretion dialog' -i 'Hook download actions' -i 'Change form factor' -i 'Change live ring click action' -i 'Enable gradient loading screen' -i 'Hook YouTube Music actions' -i 'Navigation bar components' -i 'Disable sign in to TV popup' -i 'Snack bar components' -i 'Disable splash animation' -i 'Spoof app version' -i 'Change start page' -i 'Toolbar components' -i 'Set Transcript Cookies' -i 'Disable layout updates' -i 'Hide Shorts dimming' -i 'Custom double tap length' -i 'MaterialYou' -i 'Theme' -i 'Translations for YouTube' -i 'Visual preferences icons for YouTube' -i 'Hide accessibility controls dialog' -i 'Remove background playback restrictions' -i 'Enable debug logging' -i 'Bypass URL redirects' -i 'Open links externally' -i 'Disable QUIC protocol' -i 'Change share sheet' -i 'Sanitize sharing links' -i 'Spoof watch history' -i 'Hide action buttons' -i 'Ambient mode control' -i 'Hide player buttons' -i 'Hide comments components' -i 'Player components' -i 'Description components' -i 'Hide player flyout menu' -i 'Change player flyout menu toggles' -i 'Fullscreen components' -i 'Disable haptic feedback' -i 'Miniplayer' -i 'Disable resuming Miniplayer on startup' -i 'Overlay buttons' -i 'Seekbar components' -i 'Shorts components' -i 'Disable resuming Shorts on startup' -i 'Swipe controls' -i 'GmsCore support' -i 'Return YouTube Dislike' -i 'Return YouTube Username' -i 'Settings for YouTube' -i 'SponsorBlock' -i 'Video playback' -OdoubleTapLengthArrays=1,2,3,5,10,15,20,30,45,60,90,120,150,180 -OrvxSettingsLabel=ReVanced Extended -OdarkThemeBackgroundColor=@android:color/black -OlightThemeBackgroundColor=@android:color/white"
 
 
 # Morphe
-[YouTube-Morphe]
-app-name = "YouTube"
-apkmirror-dlurl = "https://apkmirror.com/apk/google-inc/youtube/"
-uptodown-dlurl = "https://youtube.en.uptodown.com/android"
-patches-source = "MorpheApp/morphe-patches"
-cli-source = "MorpheApp/morphe-cli"
-rv-brand = "Morphe"
-build-mode = "both"
+##[YouTube-Morphe]
+#app-name = "YouTube"
+#apkmirror-dlurl = "https://apkmirror.com/apk/google-inc/youtube/"
+#uptodown-dlurl = "https://youtube.en.uptodown.com/android"
+#patches-source = "MorpheApp/morphe-patches"
+#cli-source = "MorpheApp/morphe-cli"
+#rv-brand = "Morphe"
+#build-mode = "both"
 
