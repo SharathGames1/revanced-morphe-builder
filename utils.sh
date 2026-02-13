@@ -444,7 +444,10 @@ get_uptodown_pkg_name() { $HTMLQ --text "tr.full:nth-child(1) > td:nth-child(3)"
 dl_archive() {
 	local url=$1 version=$2 output=$3 arch=$4
 	local path version=${version// /}
-	path=$(grep "${version_f#v}-${arch// /}" <<get_archive_resp() {
+	path=$(grep "${version_f#v}-${arch// /}" <<<"$__ARCHIVE_RESP__") || return 1
+	req "${url}/${path}" "$output"
+}
+get_archive_resp() {
 	local r
 	r=$(req "$1" -)
 	if [ -z "$r" ]; then return 1; else __ARCHIVE_RESP__=$(sed -n 's;^<a href="\(.*\)"[^"]*;\1;p' <<<"$r"); fi
