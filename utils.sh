@@ -233,7 +233,7 @@ gh_dl() {
 log() { echo -e "$1  " >>"build.md"; }
 get_highest_ver() {
 	local vers m
-	vers=$(tee)
+	vers=$(tee|sed 's/∞/0/g')
 	m=$(head -1 <<<"$vers")
 	if ! semver_validate "$m"; then echo "$m"; else sort -rV <<<"$vers" | head -1; fi
 }
