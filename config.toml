@@ -1,6 +1,13 @@
 enable-magisk-update = true
 parallel-jobs = 1
 build-mode = "apk"   
+# FX
+[FX]
+apkmirror-dlurl="https://www.apkmirror.com/apk/nextapp-inc/fx-file-explorer/"
+patches-source="indrastorms/Dropped-Patches"
+cli-source="ReVanced/revanced-cli"
+build-mode="apk"
+version="latest"
 # ReVanced"
 
 # ReVanced Extended by anddea
