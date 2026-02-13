@@ -4,6 +4,7 @@ build-mode = "apk"
 # FX
 [FX]
 apkmirror-dlurl="https://www.apkmirror.com/apk/nextapp-inc/fx-file-explorer/"
+uptodown-dlurl="https://fx-file-explorer.en.uptodown.com/android"
 patches-source="indrastorms/Dropped-Patches"
 cli-source="ReVanced/revanced-cli"
 build-mode="apk"
