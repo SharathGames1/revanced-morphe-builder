@@ -31,5 +31,7 @@ patches-version = "dev"
 cli-version = "dev"
 build-mode = "apk"
 rv-brand = "Morphe"
+excluded-patches = "'Change header'"
+patcher-args = "-e 'Custom branding' -OcustomName=YouTube Morphe -OcustomIcon=youtube -e 'Theme' -OdarkThemeBackgroundColor=#000000"
 #enabled= "false"
 
