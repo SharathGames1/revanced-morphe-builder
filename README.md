@@ -1,14 +1,14 @@
 
 
-This ReVanced/Morphe builder creates only apks for rootless devices [Offical ReVanced](https://github.com/ReVanced), [Dropped ReVanced Patches](https://github.com/indrastorms/Dropped-Patches) [ReVanced Extended by anddea](https://github.com/anddea/revanced-patches), and [Morphe](https://github.com/MorpheApp) versions of YouTube and YouTube Music.
+This ReVanced/Morphe builder creates only apks for rootless devices [Offical ReVanced](https://github.com/ReVanced), [ReVanced Extended by anddea](https://github.com/anddea/revanced-patches), and [Morphe](https://github.com/MorpheApp) versions of YouTube and YouTube Music.
 
 #### **Get the latest CI release [here](https://github.com/peternmuller/revanced-morphe-builder/releases/latest)!**
 
 ## Installation
 ### Non-root users
 - Install the [ReVanced GmsCore app](https://github.com/ReVanced/GmsCore/releases/latest) or the [Morphe MicroG-RE app](https://github.com/MorpheApp/MicroG-RE).
-- Download the APK files you want to install from the [releases page](https://github.com/peternmuller/revanced-morphe-builder/releases/latest), or follow the installation steps [here](https://github.com/peternmuller/revanced-morphe-builder?tab=readme-ov-file#easily-install-or-update-revancedmorphe-apps-with-obtainium).
-- (Optional) Import [one of my custom settings files](https://github.com/peternmuller/revanced-morphe-builder/tree/main/custom-settings) into your application. [*How to do this?*](https://github.com/peternmuller/revanced-morphe-builder?tab=readme-ov-file#import-custom-settings-in-revancedmorphe-applications)
+- Download the APK files you want to install from the [releases page](https://github.com/SharathGames1/revanced-morphe-builder/releases/latest), or follow the installation steps [here](https://github.com/SharathGames1/revanced-morphe-builder?tab=readme-ov-file#easily-install-or-update-revancedmorphe-apps-with-obtainium).
+
 - Enjoy!
 
 
@@ -27,7 +27,6 @@ You can easily install or keep your ReVanced/Morphe apps up to date by using [Ob
 > - YouTube Music ReVanced anddea: `yt-music-revanced-anddea`
 > - YouTube Morphe: `youtube-morphe`
 > - YouTube Music Morphe: `yt-music-morphe`
-> - FX: `fx-revanced`
 
 
 ## Building Locally
