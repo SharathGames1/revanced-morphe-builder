@@ -31,5 +31,5 @@ patches-version = "dev"
 cli-version = "dev"
 build-mode = "apk"
 rv-brand = "Morphe"
-enabled= "false"
+#enabled= "false"
 
