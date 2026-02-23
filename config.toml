@@ -7,7 +7,7 @@ build-mode = "apk"
 # ReVanced Extended by anddea
 [YouTube-anddea]
 app-name = "YouTube RVX Anddea"
-archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
+archive-dlurl = "https://archive.org/download/com.google.android.youtube-20.25.37-1555295680-min-api-26arm-64-v-8aarmeabi-v-7a"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
 github-releases-dlurl = "https://github.com/SharathGames1/APKs/releases/latest"
 uptodown-dlurl = "https://youtube.en.uptodown.com/android"
