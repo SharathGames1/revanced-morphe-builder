@@ -7,8 +7,9 @@ build-mode = "apk"
 # ReVanced Extended by anddea
 [YouTube-anddea]
 app-name = "YouTube RVX Anddea"
-#archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
-#apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
+apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
+github-releases-dlurl = "https://github.com/SharathGames1/APKs"
 uptodown-dlurl = "https://youtube.en.uptodown.com/android"
 patches-source = "anddea/revanced-patches"
 patches-version = "dev"
@@ -21,8 +22,8 @@ patcher-args = "-e='Hide ads' -e='Alternative thumbnails' -e='Bypass image regio
 # Morphe
 [YouTube-Morphe]
 app-name = "YouTube Morphe"
-#archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
-#apkmirror-dlurl = "https://apkmirror.com/apk/google-inc/youtube/"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
+apkmirror-dlurl = "https://apkmirror.com/apk/google-inc/youtube/"
 uptodown-dlurl = "https://youtube.en.uptodown.com/android"
 patches-source = "MorpheApp/morphe-patches"
 cli-source = "MorpheApp/morphe-cli"
