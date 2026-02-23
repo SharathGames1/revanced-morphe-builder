@@ -95,9 +95,12 @@ get_prebuilts() {
 			if [ "$(jq 'length' <<<"$matches")" -eq 0 ]; then
 				abort "No asset was found"
 			elif [ "$(jq 'length' <<<"$matches")" -ne 1 ]; then
-				wpr "More than 1 asset was found for this cli release. Falling back to the first one found..."
+				wpr "More than 1 asset was found for this cli release. Falling back to the higher one found..."
 			fi
-			asset=$(jq -r ".[0]" <<<"$matches")
+			asset=$(jq -r '
+  sort_by(.name | capture("([0-9]+(\\.[0-9]+)+)") | .string | split(".") | map(tonumber))
+  | last
+' <<<"$matches")
 			url=$(jq -r .url <<<"$asset")
 			name=$(jq -r .name <<<"$asset")
 			file="${dir}/${name}"
