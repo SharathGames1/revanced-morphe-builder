@@ -1,4 +1,4 @@
-enable-magisk-update = true
+#enable-magisk-update = true
 parallel-jobs = 2
 build-mode = "apk"   
 
@@ -19,7 +19,7 @@ build-mode = "apk"
 version = "20.25.37"
 rv-brand = "RVX"
 included-patches = "'Hide Shorts dimming' 'MaterialYou'"
-patcher-args = "-e 'Custom branding name for YouTube' -OappName=YouTube RVX anddea -e 'Settings for YouTube' -OrvxSettingsLabel=ReVanced Extended -e 'Theme' -OdarkThemeBackgroundColor=#ff000000 --continue-on-error"# Morphe
+patcher-args = "-e 'Custom branding name for YouTube' -OappName='YouTube RVX anddea' -e 'Settings for YouTube' -OrvxSettingsLabel=ReVanced Extended -e 'Theme' -OdarkThemeBackgroundColor=#ff000000 --continue-on-error"# Morphe
 [YouTube-Morphe]
 app-name = "YouTube Morphe"
 archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
