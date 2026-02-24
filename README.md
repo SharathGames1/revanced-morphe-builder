@@ -1,40 +1,10 @@
 
 
-This ReVanced/Morphe builder creates only apks for rootless devices [Offical ReVanced](https://github.com/ReVanced), [ReVanced Extended by anddea](https://github.com/anddea/revanced-patches), and [Morphe](https://github.com/MorpheApp) versions of YouTube and YouTube Music.
-
-#### **Get the latest CI release [here](https://github.com/peternmuller/revanced-morphe-builder/releases/latest)!**
-
-## Installation
-### Non-root users
-- Install the [ReVanced GmsCore app](https://github.com/ReVanced/GmsCore/releases/latest) or the [Morphe MicroG-RE app](https://github.com/MorpheApp/MicroG-RE).
-- Download the APK files you want to install from the [releases page](https://github.com/SharathGames1/revanced-morphe-builder/releases/latest), or follow the installation steps [here](https://github.com/SharathGames1/revanced-morphe-builder?tab=readme-ov-file#easily-install-or-update-revancedmorphe-apps-with-obtainium).
-
-- Enjoy!
-
-
-## Easily install or update ReVanced/Morphe apps with Obtainium
-You can easily install or keep your ReVanced/Morphe apps up to date by using [Obtainium](https://github.com/ImranR98/Obtainium), which lets you install and update apps directly from the source and receive notifications when new releases are available.
-
-#### Here is a quick tutorial on how to add them to Obtainium:
-
-<img width="2160" alt="obtainium_quick_tutorial" src="https://github.com/user-attachments/assets/345e0536-529e-4f64-8b0b-ab44ca9e285d">
-
-> [!NOTE]
-> In step 3, you need to enter the regular expression that corresponds to the application you want to install:
-> - YouTube ReVanced: `youtube-revanced-v`
-> - YouTube Music ReVanced: `yt-music-revanced-v`
-> - YouTube ReVanced anddea: `youtube-revanced-anddea`
-> - YouTube Music ReVanced anddea: `yt-music-revanced-anddea`
-> - YouTube Morphe: `youtube-morphe`
-> - YouTube Music Morphe: `yt-music-morphe`
-
+This ReVanced/Morphe builder creates only apks for rootless devices [ReVanced Extended by anddea](https://github.com/anddea/revanced-patches), and [Morphe](https://github.com/MorpheApp) versions of YouTube and YouTube Music.
 
 ## Building Locally
-### On Termux
-```bash
-bash <(curl -sSf https://raw.githubusercontent.com/peternmuller/revanced-morphe-builder/main/build-termux.sh)
-```
-### On Linux
+
+### On Linux (Termux is also possible)
 ```bash
 git clone https://github.com/peternmuller/revanced-morphe-builder --depth 1
 cd revanced-morphe-builder
