@@ -2,23 +2,23 @@
 parallel-jobs = 2
 build-mode = "apk"   
 
-# ReVanced"
 
 # ReVanced Extended by anddea
+
 [YouTube-anddea]
 app-name = "YouTube RVX Anddea"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
-#github-releases-dlurl = "https://github.com/SharathGames1/APKs/releases/latest"
 direct-dlurl="https://github.com/SharathGames1/APKs/releases/download/1/com.google.android.youtube_20.25.37-1555295680_minAPI26.arm64-v8a.armeabi-v7a.x86.x86_64.nodpi._apkmirror.com.1.apk"
 uptodown-dlurl = "https://youtube.en.uptodown.com/android"
 patches-source = "anddea/revanced-patches"
 patches-version = "dev"
 cli-version = "v1.4.0"
 cli-source = "MorpheApp/morphe-cli"
-build-mode = "apk"
 version = "20.25.37"
 included-patches = "'Hide Shorts dimming' 'MaterialYou'"
-patcher-args = "-e 'Custom branding name for YouTube' -OappName='YouTube RVX anddea' -e 'Settings for YouTube' -OrvxSettingsLabel='ReVanced Extended' -e 'Theme' -OdarkThemeBackgroundColor=#ff000000 --continue-on-error"# Morphe
+patcher-args = "-e 'Custom branding name for YouTube' -OappName='YouTube RVX anddea' -e 'Settings for YouTube' -OrvxSettingsLabel='ReVanced Extended' -e 'Theme' -OdarkThemeBackgroundColor=#ff000000 --continue-on-error"
+
+#Morphe
 
 [YouTube-Morphe]
 app-name = "YouTube Morphe"
@@ -29,7 +29,6 @@ patches-source = "MorpheApp/morphe-patches"
 cli-source = "MorpheApp/morphe-cli"
 patches-version = "dev"
 cli-version = "dev"
-build-mode = "apk"
 excluded-patches = "'Change header'"
 patcher-args = "-e 'Custom branding' -OcustomName='YouTube Morphe'  -e 'Theme' -OdarkThemeBackgroundColor=#000000"
 #enabled= "false"
