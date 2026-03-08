@@ -7,3 +7,5 @@ test*
 build.md
 cmpr
 .env
+.keystore
+x
