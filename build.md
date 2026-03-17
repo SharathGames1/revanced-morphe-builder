@@ -10,4 +10,4 @@ Patches: MorpheApp/patches-1.19.0-dev.7.mpp
 [Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v1.19.0-dev.7)  
 
 Skipped:  
-Patches: anddea/patches-4.0.0-dev.8.mpp                    
+Patches: anddea/patches-4.0.0-dev.8.mpp                      
