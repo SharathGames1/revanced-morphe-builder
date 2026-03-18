@@ -29,7 +29,7 @@ jobs:
       - name: Install latest Apktool
         run: |
           API_JSON=$(curl -s https://api.github.com/repos/iBotPeaches/Apktool/releases/latest) && \
-          JAR_URL=$(echo "$API_JSON" | jq -r '.assets[] | select(.name | test("apktool_.*\\.jar$")) | .browser_download_url') && \
+          JAR_URL=$(echo "$API_JSON" | jq -r '.assets[] | select(.name | test("apktool_.*\.jar$")) | .browser_download_url') && \
           wget -q https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool && \
           wget -q "$JAR_URL" -O apktool.jar && chmod +x apktool && \
           sudo mv apktool /usr/local/bin/apktool && sudo mv apktool.jar /usr/local/bin/apktool.jar
@@ -52,7 +52,8 @@ jobs:
         run: |
           APK_URL=$(curl -s https://dolphin-emu.org/download/ | grep -Eo 'https://dl\.dolphin-emu\.org/builds/[a-z0-9/]+/dolphin-master-[0-9]+-[0-9]+\.apk' | sort -V | tail -n1) && \
           NAME=$(basename "$APK_URL") && \
-          echo "APK_URL=$APK_URL" >> $GITHUB_ENV && echo "NAME=$NAME" >> $GITHUB_ENV
+          echo "APK_URL=$APK_URL" >> $GITHUB_ENV
+          echo "NAME=$NAME" >> $GITHUB_ENV
 
       - name: Get latest dolphin release
         run: |
@@ -73,35 +74,6 @@ jobs:
         run: sed -i 's/targetSdkVersion: [0-9]*/targetSdkVersion: 34/' dolphin-src/apktool.yml
 
       - name: Rebuild APK
-        run: apktool b dolphin-src -o dolphin-patched.apk
-
-      - name: Verify APK
-        run: test -f dolphin-patched.apk || (echo "Build failed!" && exit 1)
-
-      - name: Restore keystore
-        run: echo "${{ secrets.KEYSTORE }}" | base64 -d > keystore.bks
-
-      - name: Sign APK
-        run: apksigner sign --ks keystore.bks --ks-type BKS --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" --ks-pass pass:${{ secrets.KEYSTORE_PASS }} --out signed-dolphin.apk dolphin-patched.apk
-
-      - name: Verify signature
-        run: apksigner verify signed-dolphin.apk
-
-      - name: Cleanup old dolphin releases
-        run: |
-          curl -s https://api.github.com/repos/${{ github.repository }}/releases | jq -c '.[] | select(.name | startswith("dolphin")) | {id:.id, tag:.tag_name}' | \
-          while read rel; do ID=$(echo $rel | jq -r '.id'); TAG=$(echo $rel | jq -r '.tag'); \
-          if [ "$TAG" != "${{ env.NAME }}" ]; then \
-            curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/releases/$ID; \
-            curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$TAG; \
-          fi; done
-
-      - name: Create release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.NAME }}
-          name: ${{ env.NAME }}
-          files: signed-dolphin.apk      - name: Rebuild APK
         run: apktool b dolphin-src -o dolphin-patched.apk
 
       - name: Verify APK
