@@ -48,11 +48,6 @@ jobs:
           wget -q https://dl.google.com/android/repository/build-tools_r34-linux.zip -O build-tools.zip
           unzip -q build-tools.zip -d android-build-tools
 
-      # 📥 Download Bouncy Castle JAR
-      - name: Install Bouncy Castle
-        run: |
-          wget -q https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.70/bcprov-jdk15on-1.70.jar -O bcprov.jar
-
       # 🔎 Find latest Dolphin build
       - name: Find latest Dolphin build
         run: |
@@ -99,20 +94,18 @@ jobs:
       - name: Verify build
         run: test -f dolphin-patched.apk || (echo "Build failed!" && exit 1)
 
-      # 🔐 Restore BKS keystore
-      - name: Restore keystore
-        run: echo "${{ secrets.KEYSTORE }}" | base64 -d > keystore.bks
+      # 🔐 Restore P12 keystore
+      - name: Restore P12 keystore
+        run: echo "${{ secrets.KEYSTORE_P12 }}" | base64 -d > keystore.p12
 
-      # ✒️ Sign APK using apksigner.jar with Bouncy Castle provider
+      # ✒️ Sign APK using PKCS12 keystore
       - name: Sign APK
         run: |
           java -jar android-build-tools/android-14/lib/apksigner.jar sign \
-            --ks keystore.bks \
-            --ks-type BKS \
+            --ks keystore.p12 \
+            --ks-type PKCS12 \
             --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
             --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
-            --ks-provider-class org.bouncycastle.jce.provider.BouncyCastleProvider \
-            --ks-provider-arg bcprov.jar \
             --out signed-dolphin.apk \
             dolphin-patched.apk
 
