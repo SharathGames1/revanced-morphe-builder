@@ -1,0 +1,119 @@
+name: Patch Dolphin APK
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 * * * *"
+
+concurrency:
+  group: dolphin-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install tools
+        run: |
+          sudo apt update
+          sudo apt install -y apktool openjdk-17-jdk xmlstarlet jq wget
+
+      # 🔐 Install Bouncy Castle (required for BKS)
+      - name: Install Bouncy Castle
+        run: |
+          wget -q https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk18on/1.78/bcprov-jdk18on-1.78.jar -O bcprov.jar
+
+      # 🔐 Restore BKS keystore from secret (base64 encoded)
+      - name: Restore keystore
+        run: |
+          echo "${{ secrets.KEYSTORE }}" | base64 -d > keystore.bks
+
+      # 🐬 Find latest Dolphin build
+      - name: Find latest Dolphin build
+        run: |
+          URL=$(curl -s https://dolphin-emu.org/download/ \
+          | grep -Eo 'https://dl\.dolphin-emu\.org/builds/[a-z0-9/]+/dolphin-master-[0-9]+-[0-9]+\.apk' \
+          | awk -F'[-/.]' '{
+          v=$(NF-2); b=$(NF-1);
+          if (v>V || (v==V && b>B)) {V=v; B=b; U=$0}
+          } END{print U}')
+
+          NAME=$(basename "$URL")
+
+          echo "URL=$URL" >> $GITHUB_ENV
+          echo "NAME=$NAME" >> $GITHUB_ENV
+
+      # 🧠 Get latest dolphin-only release
+      - name: Get latest dolphin release
+        run: |
+          LAST=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases \
+          | jq -r '[.[] | select(.name | startswith("dolphin"))][0].name // ""')
+
+          echo "LAST=$LAST" >> $GITHUB_ENV
+
+      # ⛔ Skip if already processed
+      - name: Stop if no new build
+        if: env.NAME == env.LAST
+        run: exit 0
+
+      # ⬇️ Download APK
+      - name: Download APK
+        run: curl -L "$URL" -o dolphin.apk
+
+      # 🔧 Decompile
+      - name: Decompile APK
+        run: apktool d -r dolphin.apk -o dolphin-src
+
+      # ✏️ Patch manifest
+      - name: Patch target SDK
+        run: |
+          xmlstarlet ed \
+          -u "/manifest/uses-sdk/@android:targetSdkVersion" \
+          -v "34" \
+          dolphin-src/AndroidManifest.xml > tmp.xml
+          mv tmp.xml dolphin-src/AndroidManifest.xml
+
+      # 🔨 Rebuild
+      - name: Rebuild APK
+        run: apktool b dolphin-src -o dolphin-patched.apk
+
+      # 🔏 Sign APK using BKS keystore
+      - name: Sign APK
+        run: |
+          export JAVA_TOOL_OPTIONS="-Djava.security.properties=<(echo security.provider.1=org.bouncycastle.jce.provider.BouncyCastleProvider)"
+
+          apksigner sign \
+            --ks keystore.bks \
+            --ks-type BKS \
+            --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
+            --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
+            dolphin-patched.apk
+
+      # 🧹 Delete old dolphin releases
+      - name: Delete old dolphin releases
+        run: |
+          curl -s https://api.github.com/repos/${{ github.repository }}/releases \
+          | jq -c '.[] | select(.name | startswith("dolphin")) | {id: .id, tag: .tag_name}' \
+          | while read rel; do
+              ID=$(echo $rel | jq -r '.id')
+              TAG=$(echo $rel | jq -r '.tag')
+
+              if [ "$TAG" != "$NAME" ]; then
+                curl -s -X DELETE \
+                  -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  https://api.github.com/repos/${{ github.repository }}/releases/$ID
+
+                curl -s -X DELETE \
+                  -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$TAG
+              fi
+            done
+
+      # 🚀 Create release
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.NAME }}
+          name: ${{ env.NAME }}
+          files: dolphin-patched.apk
