@@ -84,7 +84,7 @@ jobs:
       # ✏️ Patch targetSdkVersion
       - name: Patch targetSdkVersion
         run: |
-          sed -i -E 's/^( *targetSdkVersion: *)[0-9]+/\134/' dolphin-src/apktool.yml
+          sed -i -E 's/^( *targetSdkVersion: *)[0-9]+/\129/' dolphin-src/apktool.yml
 
       # 🔧 Rebuild APK
       - name: Rebuild APK
