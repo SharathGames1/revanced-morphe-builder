@@ -18,14 +18,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ☕ Setup Java
+      # ☕ Setup Java (for apktool + apksigner)
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
 
-      # 🔧 Install dependencies
+      # 🔧 Install dependencies (no Java needed here)
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y jq unzip wget zip
 
@@ -46,6 +46,19 @@ jobs:
         run: |
           file /usr/local/bin/apktool.jar
           java -jar /usr/local/bin/apktool.jar --version
+
+      # 🔧 Install Android Build Tools for apksigner
+      - name: Install Android Build Tools
+        run: |
+          mkdir -p $HOME/android && cd $HOME/android
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+          unzip -q cmdline-tools.zip -d cmdline-tools
+          mkdir -p $HOME/android/cmdline-tools/latest
+          mv $HOME/android/cmdline-tools/cmdline-tools/* $HOME/android/cmdline-tools/latest/
+          export ANDROID_SDK_ROOT=$HOME/android
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "build-tools;34.0.0"
+          export PATH=$ANDROID_SDK_ROOT/build-tools/34.0.0:$PATH
+          echo "PATH=$PATH" >> $GITHUB_ENV
 
       # 🔍 Find latest Dolphin dev build
       - name: Find latest Dolphin build
@@ -69,6 +82,78 @@ jobs:
 
       # ⏹ Stop if already processed
       - name: Stop if up-to-date
+        if: env.NAME == env.LAST
+        run: exit 0
+
+      # ⬇️ Download APK
+      - name: Download APK
+        run: curl -L "$APK_URL" -o dolphin.apk
+
+      # 📂 Decompile
+      - name: Decompile APK
+        run: apktool d dolphin.apk -o dolphin-src
+
+      # ✏️ Patch apktool.yml
+      - name: Patch targetSdkVersion
+        run: |
+          sed -i 's/targetSdkVersion: [0-9]*/targetSdkVersion: 34/' dolphin-src/apktool.yml
+
+      # 🔨 Rebuild
+      - name: Rebuild APK
+        run: apktool b dolphin-src -o dolphin-patched.apk
+
+      # 🔍 Verify build output
+      - name: Verify APK
+        run: |
+          if [ ! -f dolphin-patched.apk ]; then
+            echo "Build failed!"
+            exit 1
+          fi
+
+      # 🔐 Restore BKS keystore from secret
+      - name: Restore keystore
+        run: echo "${{ secrets.KEYSTORE }}" | base64 -d > keystore.bks
+
+      # ✒️ Sign APK
+      - name: Sign APK
+        run: |
+          apksigner sign \
+            --ks keystore.bks \
+            --ks-type BKS \
+            --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
+            --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
+            --out signed-dolphin.apk \
+            dolphin-patched.apk
+
+      # ✅ Verify APK signature
+      - name: Verify signature
+        run: apksigner verify signed-dolphin.apk
+
+      # 🧹 Delete old dolphin releases
+      - name: Cleanup old dolphin releases
+        run: |
+          curl -s https://api.github.com/repos/${{ github.repository }}/releases \
+          | jq -c '.[] | select(.name | startswith("dolphin")) | {id: .id, tag: .tag_name}' \
+          | while read rel; do
+              ID=$(echo "$rel" | jq -r '.id')
+              TAG=$(echo "$rel" | jq -r '.tag')
+              if [ "$TAG" != "${{ env.NAME }}" ]; then
+                curl -s -X DELETE \
+                  -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  https://api.github.com/repos/${{ github.repository }}/releases/$ID
+                curl -s -X DELETE \
+                  -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$TAG
+              fi
+            done
+
+      # 🚀 Publish release
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.NAME }}
+          name: ${{ env.NAME }}
+          files: signed-dolphin.apk      - name: Stop if up-to-date
         if: env.NAME == env.LAST
         run: exit 0
 
