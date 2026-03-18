@@ -14,34 +14,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 📦 Checkout
+      # 📦 Checkout repository
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ☕ Java (needed for apktool + apksigner)
+      # ☕ Setup Java
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
 
-      # 🔧 Install apktool (FIXED)
-      - name: Install apktool
-        run: |
-          wget -q https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool
-          wget -q https://github.com/iBotPeaches/Apktool/releases/download/v2.9.4/apktool_2.9.4.jar -O apktool.jar
+      # 🔧 Install dependencies
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y jq unzip wget zip
 
+      # ⚡ Install latest Apktool via GitHub API
+      - name: Install latest Apktool
+        run: |
+          API_JSON=$(curl -s https://api.github.com/repos/iBotPeaches/Apktool/releases/latest)
+          JAR_URL=$(echo "$API_JSON" | jq -r '.assets[] | select(.name | test("apktool_.*\\.jar$")) | .browser_download_url')
+          echo "Downloading Apktool from: $JAR_URL"
+          wget -q https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool
+          wget -q "$JAR_URL" -O apktool.jar
           chmod +x apktool
           sudo mv apktool /usr/local/bin/apktool
           sudo mv apktool.jar /usr/local/bin/apktool.jar
 
-      # ✅ Verify apktool (prevents corrupt jar issues)
-      - name: Verify apktool
+      # ✅ Verify Apktool
+      - name: Verify Apktool
         run: |
           file /usr/local/bin/apktool.jar
           java -jar /usr/local/bin/apktool.jar --version
 
-      # 🔍 Find latest Dolphin build
+      # 🔍 Find latest Dolphin dev build
       - name: Find latest Dolphin build
         run: |
           APK_URL=$(curl -s https://dolphin-emu.org/download/ \
@@ -50,22 +56,19 @@ jobs:
               v=$(NF-2); b=$(NF-1);
               if (v>V || (v==V && b>B)) {V=v; B=b; U=$0}
             } END{print U}')
-
           NAME=$(basename "$APK_URL")
-
           echo "APK_URL=$APK_URL" >> $GITHUB_ENV
           echo "NAME=$NAME" >> $GITHUB_ENV
 
-      # 📦 Get latest dolphin release
+      # 📦 Get latest dolphin-only release
       - name: Get latest dolphin release
         run: |
           LAST=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases \
             | jq -r '[.[] | select(.name | startswith("dolphin"))][0].name // ""')
-
           echo "LAST=$LAST" >> $GITHUB_ENV
 
-      # ⛔ Skip if same
-      - name: Skip if already latest
+      # ⏹ Stop if already processed
+      - name: Stop if up-to-date
         if: env.NAME == env.LAST
         run: exit 0
 
@@ -77,7 +80,7 @@ jobs:
       - name: Decompile APK
         run: apktool d dolphin.apk -o dolphin-src
 
-      # ✏️ Patch SDK via apktool.yml
+      # ✏️ Patch apktool.yml
       - name: Patch targetSdkVersion
         run: |
           sed -i 's/targetSdkVersion: [0-9]*/targetSdkVersion: 34/' dolphin-src/apktool.yml
@@ -86,15 +89,15 @@ jobs:
       - name: Rebuild APK
         run: apktool b dolphin-src -o dolphin-patched.apk
 
-      # 🔍 Verify rebuilt APK exists
-      - name: Verify build output
+      # 🔍 Verify build output
+      - name: Verify APK
         run: |
           if [ ! -f dolphin-patched.apk ]; then
             echo "Build failed!"
             exit 1
           fi
 
-      # 🔐 Restore BKS keystore
+      # 🔐 Restore BKS keystore from secret
       - name: Restore keystore
         run: echo "${{ secrets.KEYSTORE }}" | base64 -d > keystore.bks
 
@@ -109,24 +112,22 @@ jobs:
             --out signed-dolphin.apk \
             dolphin-patched.apk
 
-      # ✅ Verify signature
-      - name: Verify APK signature
+      # ✅ Verify APK signature
+      - name: Verify signature
         run: apksigner verify signed-dolphin.apk
 
       # 🧹 Delete old dolphin releases
-      - name: Cleanup old releases
+      - name: Cleanup old dolphin releases
         run: |
           curl -s https://api.github.com/repos/${{ github.repository }}/releases \
           | jq -c '.[] | select(.name | startswith("dolphin")) | {id: .id, tag: .tag_name}' \
           | while read rel; do
               ID=$(echo "$rel" | jq -r '.id')
               TAG=$(echo "$rel" | jq -r '.tag')
-
-              if [ "$TAG" != "$NAME" ]; then
+              if [ "$TAG" != "${{ env.NAME }}" ]; then
                 curl -s -X DELETE \
                   -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                   https://api.github.com/repos/${{ github.repository }}/releases/$ID
-
                 curl -s -X DELETE \
                   -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                   https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$TAG
