@@ -1,6 +1,9 @@
 name: Patch Dolphin APK
 
 on:
+  push:
+    paths:
+      - '.github/actions/ci2.yml'
   workflow_dispatch:
   schedule:
     - cron: "0 1/2 * * *"
