@@ -16,13 +16,14 @@ version = "20.25.37"
 included-patches = "'Hide Shorts dimming' 'MaterialYou'"
 patcher-args = "-e 'Custom branding name for YouTube' -OappName='YouTube RVX anddea' -e 'Settings for YouTube' -OrvxSettingsLabel='ReVanced Extended' -e 'Theme' -OdarkThemeBackgroundColor=#ff000000 --continue-on-error"
 build-mode = "apk"
+enabled = "false"
 #Morphe
 
 [YouTube-Morphe]
 app-name = "YouTube Morphe"
-archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
-apkmirror-dlurl = "https://apkmirror.com/apk/google-inc/youtube/"
-uptodown-dlurl = "https://youtube.en.uptodown.com/android"
+#archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
+#apkmirror-dlurl = "https://apkmirror.com/apk/google-inc/youtube/"
+#uptodown-dlurl = "https://youtube.en.uptodown.com/android"
 patches-source = "MorpheApp/morphe-patches"
 cli-source = "MorpheApp/morphe-cli"
 version = "21.12.521"
