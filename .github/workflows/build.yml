@@ -8,6 +8,12 @@ on:
         default: true
 
   workflow_dispatch:
+  push:
+    paths:
+     - 'config.toml'
+     - 'build.sh'
+     - 'utils.sh'
+     - '.github/workflows/build.yml'
 
 jobs:
   run:
