@@ -235,7 +235,7 @@ get_highest_ver() {
 	local vers m
 	vers=$(tee)
 	m=$(head -1 <<<"$vers")
-	if ! semver_validate "$m"; then echo "$m"; else sort -rV <<<"$vers" | head -1; fi
+	if ! semver_validate "$m"; then echo "$m"; else sed 's/-.*//' <<<"$vers" | paste -d'|' - <<<"$vers" | sort -t'|' -k1,1Vr -k2,2r | head -1 | cut -d'|' -f2 ; fi
 }
 semver_validate() {
 	local a="${1%-*}"
