@@ -15,8 +15,8 @@ cli-source = "MorpheApp/morphe-cli"
 version = "20.25.37"
 included-patches = "'Hide Shorts dimming' 'MaterialYou'"
 patcher-args = "-e 'Custom branding name for YouTube' -OappName='YouTube RVX anddea' -e 'Settings for YouTube' -OrvxSettingsLabel='ReVanced Extended' -e 'Theme' -OdarkThemeBackgroundColor=#ff000000 --continue-on-error"
-build-mode = "apk"
-enabled = "false"
+build-mode = "both"
+#enabled = "false"
 #Morphe
 
 [YouTube-Morphe]
@@ -31,7 +31,7 @@ patches-version = "dev"
 cli-version = "latest"
 excluded-patches = "'Change header'"
 patcher-args = "-e 'Custom branding' -OcustomName='YouTube Morphe'  -e 'Theme' -OdarkThemeBackgroundColor=#000000"
-build-mode = "apk"
+build-mode = "both"
 #enabled= "false"
 
 #hoo-dles
