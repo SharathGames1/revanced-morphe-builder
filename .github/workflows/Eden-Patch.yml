@@ -76,10 +76,9 @@ jobs:
         run: apktool d eden.apk -o src
 
       # ✏️ Patch via apktool.yml
-      - name: Patch apktool.yml
+      - name: Patch AndroidManifest.xml
         run: |
-          sed -i 's/renameManifestPackage: null/renameManifestPackage: com.tencent.ig/' src/apktool.yml || true
-
+            sed -i 's/dev\.eden\.eden_emulator\.nightly/com.tencent.ig/g' src/AndroidManifest.xml
       # 🔧 Rebuild APK
       - name: Rebuild APK
         run: apktool b src -o patched.apk
