@@ -3,7 +3,7 @@ name: Patch Eden APK
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 */2 * * *"
+    - cron: "0 0/4 * * *"
 
 concurrency:
   group: eden-build
@@ -78,12 +78,7 @@ jobs:
       # ✏️ Patch via apktool.yml
       - name: Patch apktool.yml
         run: |
-          # Ensure renameManifestPackage exists or replace it
-          if grep -q "renameManifestPackage" src/apktool.yml; then
-            sed -i 's/renameManifestPackage:.*/renameManifestPackage: com.tencent.ig/' src/apktool.yml
-          else
-            echo "renameManifestPackage: com.tencent.ig" >> src/apktool.yml
-          fi
+          sed -i 's/renameManifestPackage: null/renameManifestPackage: com.tencent.ig/' src/apktool.yml || true
 
       # 🔧 Rebuild APK
       - name: Rebuild APK
