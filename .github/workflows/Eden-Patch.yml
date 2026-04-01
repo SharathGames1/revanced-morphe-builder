@@ -47,8 +47,7 @@ jobs:
       # 🔎 Get latest Eden APK
       - name: Get latest Eden build
         run: |
-          APK_URL=$(curl -s https://api.github.com/repos/Eden-CI/Nightly/releases/latest \
-            | jq -r '.assets[] | select(.name | test("standard.apk")) | .browser_download_url')
+          APK_URL=$(curl -fSsL https://git.eden-emu.dev/api/v1/repos/eden-ci/nightly/releases | jq -r '.[] | .assets |first | select(.name | test("standard.apk")) | .browser_download_url' | head -n 1)
 
           NAME=$(basename "$APK_URL" .apk)
 
