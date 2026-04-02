@@ -3,7 +3,7 @@ name: Patch Eden APK
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 20 * * *"
+    - cron: "0 3 * * *"
 
 concurrency:
   group: eden-build
@@ -47,7 +47,7 @@ jobs:
       # 🔎 Get latest Eden APK
       - name: Get latest Eden build
         run: |
-          APK_URL=$(curl -fSsL https://git.eden-emu.dev/api/v1/repos/eden-ci/nightly/releases | jq -r '.[] | .assets |first | select(.name | test("standard.apk")) | .browser_download_url' | head -n 1)
+          APK_URL=$(curl -fSsL https://git.eden-emu.dev/api/v1/repos/eden-ci/nightly/releases | jq -r '.[0] | .assets | .[] | select(.name | test("standard.apk"))| .browser_download_url')
 
           NAME=$(basename "$APK_URL" .apk)
 
