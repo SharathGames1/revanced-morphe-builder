@@ -7,8 +7,8 @@ Patches: anddea/patches-4.0.0-dev.13.mpp
 [Changelog](https://github.com/anddea/revanced-patches/releases/tag/v4.0.0-dev.13)
 
 CLI: MorpheApp/morphe-cli-1.6.3-all.jar  
-Patches: hoo-dles/patches-1.18.0-dev.1.mpp  
-[Changelog](https://github.com/hoo-dles/morphe-patches/releases/tag/v1.18.0-dev.1)  
+Patches: hoo-dles/patches-1.19.0-dev.1.mpp  
+[Changelog](https://github.com/hoo-dles/morphe-patches/releases/tag/v1.19.0-dev.1)  
 
 Skipped:  
-Patches: MorpheApp/patches-1.23.0-dev.4.mpp                  
+Patches: MorpheApp/patches-1.23.0-dev.4.mpp                    
