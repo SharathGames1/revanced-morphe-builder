@@ -11,4 +11,4 @@ Patches: hoo-dles/patches-1.19.0-dev.1.mpp
 [Changelog](https://github.com/hoo-dles/morphe-patches/releases/tag/v1.19.0-dev.1)  
 
 Skipped:  
-Patches: MorpheApp/patches-1.23.0-dev.4.mpp                        
+Patches: MorpheApp/patches-1.23.0-dev.4.mpp                          
