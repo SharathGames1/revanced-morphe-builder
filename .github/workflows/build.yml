@@ -49,7 +49,7 @@ jobs:
 
          if [ -z "$TAG" ]; then TAG=0; fi
 
-         echo "NEXT_VER_CODE=$((TAG + 1))" >> $GITHUB_OUTPUT
+         echo "NEXT_VER_CODE=$((TAG + 10000))" >> $GITHUB_OUTPUT
 
       - name: Build modules/APKs
         run: if [ -f "config.json" ]; then bash ./build.sh config.json; else bash  ./build.sh config.toml; fi
