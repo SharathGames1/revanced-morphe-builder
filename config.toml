@@ -1,4 +1,4 @@
-parallel-jobs = 5
+parallel-jobs = 10
 remove-rv-integrations-checks = true
 
 # ReVanced Extended by anddea
