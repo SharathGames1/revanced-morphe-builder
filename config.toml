@@ -57,6 +57,8 @@ cli-source = "MorpheApp/morphe-cli"
 patches-version = "dev"
 cli-version = "latest"
 build-mode = "apk"
+patches-source = "crimera/piko"
+
 [Instagram]
 apkmirror-dlurl = "https://apkmirror.com/apk/instagram/instagram-instagram/"
 uptodown-dlurl = "https://instagram.en.uptodown.com/android"
@@ -65,3 +67,4 @@ cli-source = "MorpheApp/morphe-cli"
 patches-version = "dev"
 cli-version = "latest"
 build-mode = "apk"
+patches-source = "crimera/piko"
