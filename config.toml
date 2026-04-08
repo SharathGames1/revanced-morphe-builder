@@ -58,6 +58,7 @@ patches-version = "dev"
 cli-version = "latest"
 build-mode = "apk"
 patches-source = "crimera/piko"
+version = "latest"
 
 [Instagram]
 apkmirror-dlurl = "https://apkmirror.com/apk/instagram/instagram-instagram/"
