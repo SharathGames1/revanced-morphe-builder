@@ -47,3 +47,16 @@ cli-source = "MorpheApp/morphe-cli"
 patches-version = "dev"
 cli-version = "latest"
 #enabled=false
+
+[Twitter]
+apkmirror-dlurl = "https://apkmirror.com/apk/twitter-inc/twitter/"
+included-patches = "'Dynamic color'"
+excluded-patches = "'Change version code'"
+cli-source = "MorpheApp/morphe-cli"
+patches-version = "dev"
+
+[Instagram]
+apkmirror-dlurl = "https://apkmirror.com/apk/instagram/instagram-instagram/"
+excluded-patches = "'Change version code'"
+cli-source = "MorpheApp/morphe-cli"
+patches-version = "dev"
