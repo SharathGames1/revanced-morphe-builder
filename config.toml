@@ -50,6 +50,7 @@ cli-version = "latest"
 
 [Twitter]
 apkmirror-dlurl = "https://apkmirror.com/apk/twitter-inc/twitter/"
+uptodown-dlurl = "https://twitter.en.uptodown.com/android"
 included-patches = "'Dynamic color'"
 excluded-patches = "'Change version code'"
 cli-source = "MorpheApp/morphe-cli"
@@ -57,6 +58,7 @@ patches-version = "dev"
 
 [Instagram]
 apkmirror-dlurl = "https://apkmirror.com/apk/instagram/instagram-instagram/"
+uptodown-dlurl = "https://instagram.en.uptodown.com/android"
 excluded-patches = "'Change version code'"
 cli-source = "MorpheApp/morphe-cli"
 patches-version = "dev"
