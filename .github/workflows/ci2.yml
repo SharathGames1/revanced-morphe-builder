@@ -1,0 +1,132 @@
+name: Patch Dolphin APK
+
+on:
+  push:
+    paths:
+      - '.github/workflows/ci2.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: "0 1/2 * * *"
+
+concurrency:
+  group: dolphin-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 📦 Checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ☕ Setup Java
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # 🔧 Install dependencies
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y jq unzip wget zip
+
+      # ⚡ Install Apktool v3.0.1
+      - name: Install Apktool
+        run: |
+          wget -q https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool
+          wget -q https://github.com/iBotPeaches/Apktool/releases/download/v3.0.1/apktool_3.0.1.jar -O apktool.jar
+          chmod +x apktool
+          sudo mv apktool /usr/local/bin/apktool
+          sudo mv apktool.jar /usr/local/bin/apktool.jar
+
+      # ✅ Verify Apktool
+      - name: Verify Apktool
+        run: java -jar /usr/local/bin/apktool.jar --version
+
+      # 🏗️ Install Android Build Tools r34
+      - name: Install Android Build Tools
+        run: |
+          wget -q https://dl.google.com/android/repository/build-tools_r34-linux.zip -O build-tools.zip
+          unzip -q build-tools.zip -d android-build-tools
+
+      # 🔎 Find latest Dolphin build
+      - name: Find latest Dolphin build
+        run: |
+          APK_URL=$(curl -s https://dolphin-emu.org/download/ \
+            | grep -Eo 'https://dl\.dolphin-emu\.org/builds/[a-z0-9/]+/dolphin-master-[0-9]+-[0-9]+\.apk' \
+            | awk -F'[-/.]' '{
+              v=$(NF-2); b=$(NF-1);
+              if (v>V || (v==V && b>B)) {V=v; B=b; U=$0}
+            } END{print U}')
+          NAME=$(basename "$APK_URL" .apk)
+          echo "APK_URL=$APK_URL" >> $GITHUB_ENV
+          echo "NAME=$NAME" >> $GITHUB_ENV
+
+      # 📦 Get latest dolphin release
+      - name: Get latest dolphin release
+        run: |
+          LAST=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases \
+            | jq -r '[.[] | select(.name | startswith("dolphin"))][0].name // ""')
+          echo "LAST=$LAST" >> $GITHUB_ENV
+
+      # ⏹ Stop if already latest
+      - name: Skip if up-to-date
+        if: env.NAME == env.LAST
+        run: exit 0
+
+      # ⬇️ Download APK
+      - name: Download APK
+        run: curl -L "$APK_URL" -o dolphin.apk
+
+      # 📂 Decompile
+      - name: Decompile APK
+        run: apktool d dolphin.apk -o dolphin-src
+
+      # ✏️ Patch targetSdkVersion
+      - name: Patch targetSdkVersion
+        run: |
+          sed -i -E 's/^( *targetSdkVersion: *)[0-9]+/\129/' dolphin-src/apktool.yml
+
+      # 🔧 Rebuild APK
+      - name: Rebuild APK
+        run: apktool b dolphin-src -o dolphin-patched.apk
+
+      # 🔐 Restore P12 keystore
+      - name: Restore P12 keystore
+        run: echo "${{ secrets.KEYSTORE_P12 }}" | base64 -d > keystore.p12
+
+      # ✒️ Sign APK using PKCS12 keystore
+      - name: Sign APK
+        run: |
+          java -jar android-build-tools/android-14/lib/apksigner.jar sign \
+            --ks keystore.p12 \
+            --ks-type PKCS12 \
+            --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
+            --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
+            --out signed-$NAME.apk \
+            dolphin-patched.apk
+      # 🧹 Delete old dolphin releases
+      - name: Cleanup old releases
+        run: |
+          curl -s https://api.github.com/repos/${{ github.repository }}/releases \
+          | jq -c '.[] | select(.name | startswith("dolphin")) | {id: .id, tag: .tag_name}' \
+          | while read rel; do
+              ID=$(echo "$rel" | jq -r '.id')
+              TAG=$(echo "$rel" | jq -r '.tag')
+              if [ "$TAG" != "$NAME" ]; then
+                curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  https://api.github.com/repos/${{ github.repository }}/releases/$ID
+                curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$TAG
+              fi
+            done
+
+      # 🚀 Create release with the signed APK
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.NAME }}
+          name: ${{ env.NAME }}
+          files: signed-${{ env.NAME }}.apk

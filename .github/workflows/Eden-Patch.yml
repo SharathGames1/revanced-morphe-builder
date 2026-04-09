@@ -1,0 +1,122 @@
+name: Patch Eden APK
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"
+
+concurrency:
+  group: eden-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 📦 Checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ☕ Setup Java
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # 🔧 Install dependencies
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y jq unzip wget zip
+
+      # ⚡ Install Apktool
+      - name: Install Apktool
+        run: |
+          wget -q https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool
+          wget -q https://github.com/iBotPeaches/Apktool/releases/download/v3.0.1/apktool_3.0.1.jar -O apktool.jar
+          chmod +x apktool
+          sudo mv apktool /usr/local/bin/apktool
+          sudo mv apktool.jar /usr/local/bin/apktool.jar
+
+      # 🏗️ Install Android Build Tools (for signing)
+      - name: Install Android Build Tools
+        run: |
+          wget -q https://dl.google.com/android/repository/build-tools_r34-linux.zip -O build-tools.zip
+          unzip -q build-tools.zip -d android-build-tools
+
+      # 🔎 Get latest Eden APK
+      - name: Get latest Eden build
+        run: |
+          APK_URL=$(curl -fSsL https://git.eden-emu.dev/api/v1/repos/eden-ci/nightly/releases | jq -r '.[0] | .assets | .[] | select(.name | test("standard.apk"))| .browser_download_url')
+
+          NAME=$(basename "$APK_URL" .apk)
+
+          echo "APK_URL=$APK_URL" >> $GITHUB_ENV
+          echo "NAME=$NAME" >> $GITHUB_ENV
+
+      # 📦 Get last release
+      - name: Get last release
+        run: |
+          LAST=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases \
+            | jq -r '[.[]][0].name // ""')
+          echo "LAST=$LAST" >> $GITHUB_ENV
+
+      # ⏹ Skip if already latest
+      - name: Skip if up-to-date
+        if: env.NAME == env.LAST
+        run: exit 0
+
+      # ⬇️ Download APK
+      - name: Download APK
+        run: curl -L "$APK_URL" -o eden.apk
+
+      # 📂 Decompile APK
+      - name: Decompile APK
+        run: apktool d eden.apk -o src
+
+      # ✏️ Patch via apktool.yml
+      - name: Patch AndroidManifest.xml
+        run: |
+            sed -i 's/dev\.eden\.eden_emulator\.nightly/com.tencent.ig/g' src/AndroidManifest.xml
+      # 🔧 Rebuild APK
+      - name: Rebuild APK
+        run: apktool b src -o patched.apk
+
+      # 🔐 Restore keystore
+      - name: Restore keystore
+        run: echo "${{ secrets.KEYSTORE_P12 }}" | base64 -d > keystore.p12
+
+      # ✒️ Sign APK
+      - name: Sign APK
+        run: |
+          java -jar android-build-tools/android-14/lib/apksigner.jar sign \
+            --ks keystore.p12 \
+            --ks-type PKCS12 \
+            --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
+            --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
+            --out signed-${{ env.NAME }}.apk \
+            patched.apk
+
+      # 🧹 Cleanup old releases
+      - name: Cleanup old releases
+        run: |
+          curl -s https://api.github.com/repos/${{ github.repository }}/releases \
+          | jq -c '.[] | select(.name | startswith("Eden")) | {id: .id, tag: .tag_name}' \
+          | while read rel; do
+              ID=$(echo "$rel" | jq -r '.id')
+              TAG=$(echo "$rel" | jq -r '.tag')
+              if [ "$TAG" != "$NAME" ]; then
+                curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  https://api.github.com/repos/${{ github.repository }}/releases/$ID
+                curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$TAG
+              fi
+            done
+
+      # 🚀 Create release
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.NAME }}
+          name: ${{ env.NAME }}
+          files: signed-${{ env.NAME }}.apk
