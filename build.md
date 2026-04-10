@@ -1,5 +1,4 @@
 YouTube: 20.25.37  
-Twitter: 11.80.0-release.0  
 
 Install [Microg](https://github.com/MorpheApp/MicroG-RE/releases) for non-root YouTube and YT Music APKs  
 Use [zygisk-detach](https://github.com/j-hc/zygisk-detach) to detach YouTube and YT Music modules from Play Store  
@@ -12,4 +11,4 @@ Patches: crimera/patches-3.2.0-dev.5.mpp
 
 Skipped:  
 Patches: hoo-dles/patches-1.23.0-dev.1.mpp  
-Patches: MorpheApp/patches-1.24.0-dev.4.mpp            
+Patches: MorpheApp/patches-1.24.0-dev.4.mpp              
