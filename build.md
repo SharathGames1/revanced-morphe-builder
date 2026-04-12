@@ -11,7 +11,7 @@ Patches: crimera/patches-3.2.0-dev.5.mpp
 
 CLI: MorpheApp/morphe-cli-1.6.3-all.jar  
 Patches: hoo-dles/patches-1.23.0-dev.1.mpp  
-[Changelog](https://github.com/hoo-dles/morphe-patches/releases/tag/v1.23.0-dev.1)  
+[Changelog](https://github.com/hoo-dles/morphe-patches/releases/tag/v1.23.0-dev.1)
 
-Skipped:  
-Patches: MorpheApp/patches-1.24.0-dev.5.mpp                                                  
+Patches: MorpheApp/patches-1.24.0-dev.6.mpp  
+[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v1.24.0-dev.6)  
