@@ -14,4 +14,4 @@ Patches: hoo-dles/patches-1.23.0-dev.1.mpp
 [Changelog](https://github.com/hoo-dles/morphe-patches/releases/tag/v1.23.0-dev.1)  
 
 Skipped:  
-Patches: MorpheApp/patches-1.24.0-dev.6.mpp        
+Patches: MorpheApp/patches-1.24.0-dev.6.mpp          
