@@ -1,4 +1,3 @@
-PrimeVideo: 3.0.447.757  
 YouTube: 20.25.37  
 Twitter: 11.82.0-release.0  
 
@@ -7,12 +6,10 @@ Use [zygisk-detach](https://github.com/j-hc/zygisk-detach) to detach YouTube and
 Patches: anddea/patches-4.0.0-dev.13.mpp  
 [Changelog](https://github.com/anddea/revanced-patches/releases/tag/v4.0.0-dev.13)
 
-Patches: crimera/patches-3.2.0-dev.5.mpp  
-[Changelog](https://github.com/crimera/piko/releases/tag/v3.2.0-dev.5)
-
 CLI: MorpheApp/morphe-cli-1.6.3-all.jar  
-Patches: hoo-dles/patches-1.24.0-dev.1.mpp  
-[Changelog](https://github.com/hoo-dles/morphe-patches/releases/tag/v1.24.0-dev.1)  
+Patches: crimera/patches-3.2.0-dev.5.mpp  
+[Changelog](https://github.com/crimera/piko/releases/tag/v3.2.0-dev.5)  
 
 Skipped:  
-Patches: MorpheApp/patches-1.24.0-dev.7.mpp                  
+Patches: hoo-dles/patches-1.24.0-dev.1.mpp  
+Patches: MorpheApp/patches-1.24.0-dev.7.mpp                    
