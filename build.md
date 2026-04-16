@@ -1,5 +1,5 @@
-PrimeVideo: 3.0.447.757  
 YouTube: 20.25.37  
+PrimeVideo: 3.0.447.757  
 Twitter: 11.82.0-release.0  
 
 Install [Microg](https://github.com/MorpheApp/MicroG-RE/releases) for non-root YouTube and YT Music APKs  
@@ -15,4 +15,4 @@ Patches: hoo-dles/patches-1.24.0-dev.1.mpp
 [Changelog](https://github.com/hoo-dles/morphe-patches/releases/tag/v1.24.0-dev.1)  
 
 Skipped:  
-Patches: MorpheApp/patches-1.24.0-dev.9.mpp          
+Patches: MorpheApp/patches-1.24.0-dev.9.mpp            
