@@ -11,8 +11,8 @@ Patches: crimera/patches-3.2.0-dev.5.mpp
 [Changelog](https://github.com/crimera/piko/releases/tag/v3.2.0-dev.5)
 
 CLI: MorpheApp/morphe-cli-1.7.0-all.jar  
-Patches: hoo-dles/patches-1.24.0-dev.1.mpp  
-[Changelog](https://github.com/hoo-dles/morphe-patches/releases/tag/v1.24.0-dev.1)  
+Patches: hoo-dles/patches-1.25.0-dev.1.mpp  
+[Changelog](https://github.com/hoo-dles/morphe-patches/releases/tag/v1.25.0-dev.1)  
 
 Skipped:  
-Patches: MorpheApp/patches-1.24.0-dev.9.mpp                            
+Patches: MorpheApp/patches-1.24.0-dev.9.mpp                              
