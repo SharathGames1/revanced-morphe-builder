@@ -108,8 +108,34 @@ jobs:
             --ks-type PKCS12 \
             --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
             --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
-            --out build/signed-$DOLPHIN_NAME.apk \
+            --out build/$DOLPHIN_NAME.apk \
             temp/dolphin-patched.apk
+      - name: Get latest Eden build and decompile
+        continue-on-error: true
+        run: |
+          EDEN_APK_URL=$(curl -fSsL https://git.eden-emu.dev/api/v1/repos/eden-ci/nightly/releases | jq -r '.[0] | .assets | .[] | select(.name | test("standard.apk"))| .browser_download_url')
+
+          EDEN_NAME=$(basename "$EDEN_APK_URL" .apk)
+
+          echo "EDEN_APK_URL=$EDEN_APK_URL" >> $GITHUB_ENV
+          echo "EDEN_NAME=$NAME" >> $GITHUB_ENV
+          curl -L "$EDEN_APK_URL" -o temp/eden.apk
+          apktool d temp/eden.apk -o temp/eden-src
+
+      - name: Patch AndroidManifest.xml
+        continue-on-error: true
+        run: |
+            sed -i 's/dev\.eden\.eden_emulator\.nightly/com.tencent.ig/g' temp/eden-src/AndroidManifest.xml
+            apktool b temp/eden-src -o temp/patched.apk
+            java -jar android-build-tools/android-14/lib/apksigner.jar sign \
+            --ks ks-p12.keystore \
+            --ks-type PKCS12 \
+            --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
+            --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
+            --out build/$EDEN_NAME.apk \
+            temp/eden-patched.apk
+            
+         
           
             
       - name: Get output
@@ -118,7 +144,7 @@ jobs:
           DELIM="$(openssl rand -hex 8)"
           echo "BUILD_LOG<<${DELIM}" >> "$GITHUB_OUTPUT"
           cat build.md >> "$GITHUB_OUTPUT"
-          echo "Patched Dolphin SDK 29: ${DOLPHIN_NAME}" >> "$GITHUB_OUTPUT"
+          echo "Patched Dolphin SDK 29: ${DOLPHIN_NAME}/nPatched Eden PUBG: ${EDEN_NAME}" >> "$GITHUB_OUTPUT"
           echo "${DELIM}" >> "$GITHUB_OUTPUT"
           cp -f build.md build.tmp
       
