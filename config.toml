@@ -71,7 +71,7 @@ build-mode = "apk"
 patches-source = "crimera/piko"
 enabled = "false"
 
-[Amazon India]
+[Amazon-India]
 uptodown-dlurl = "https://amazon-india.en.uptodown.com/android"
 patches-source = "hoo-dles/morphe-patches"
 build-mode = "apk"
