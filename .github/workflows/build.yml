@@ -31,7 +31,7 @@ jobs:
       - name: Decode Keystore
         run: |
           echo "${{ secrets.KEYSTORE }}" | base64 --decode > sign.keystore
-          echo "${{ secrets.KEYSTORE_P12 }}" | base64 --decode > ks_p12.keystore
+          echo "${{ secrets.KEYSTORE_P12 }}" | base64 --decode > ks-p12.keystore
 
       - name: Update config
         if: ${{ inputs.from_ci }}
