@@ -126,8 +126,33 @@ jobs:
             --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
             --out build/$EDEN_NAME.apk \
             temp/eden-patched.apk
+      - name: Get latest FCL build and decompile
+        continue-on-error: true
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          FCL_APK_URL=curl -fSsL https://api.github.com/repos/FCL-Team/foldcraftlauncher/releases/latest | jq -r '.assets[0].browser_download_url'
+          echo "EDEN_NAME=$EDEN_NAME" >> $GITHUB_ENV
+          FCL_NAME=$(basename "$FCL_APK_URL" .apk)
+          echo "FCL_APK_URL=$FCL_APK_URL" >> $GITHUB_ENV
+          echo "FCL_NAME=$FCL_NAME" >> $GITHUB_ENV
+          curl -L "$FCL_APK_URL" -o temp/fcl.apk
+          apktool d temp/fcl.apk -o temp/fcl-src
 
-         
+      - name: Patch AndroidManifest.xml for Eden and build
+        continue-on-error: true
+        run: |
+            sed -i 's/com\.tungsten\.fcl/com.activision.callofduty.shooter/g' temp/fcl-src/AndroidManifest.xml
+            apktool b temp/fcl-src -o temp/fcl-patched.apk
+            java -jar android-build-tools/android-14/lib/apksigner.jar sign \
+            --ks ks-p12.keystore \
+            --ks-type PKCS12 \
+            --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
+            --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
+            --out build/$FCL_NAME.apk \
+            temp/fcl-patched.apk
+
+        
           
             
       - name: Get output
@@ -136,7 +161,7 @@ jobs:
           DELIM="$(openssl rand -hex 8)"
           echo "BUILD_LOG<<${DELIM}" >> "$GITHUB_OUTPUT"
           cat build.md >> "$GITHUB_OUTPUT"
-          echo "Patched Dolphin SDK 29: ${DOLPHIN_NAME}\nPatched Eden PUBG: ${EDEN_NAME}" >> "$GITHUB_OUTPUT"
+          echo -e "Patched Dolphin SDK 29: ${DOLPHIN_NAME}\nPatched Eden PUBG: ${EDEN_NAME}" >> "$GITHUB_OUTPUT"
           echo "${DELIM}" >> "$GITHUB_OUTPUT"
           cp -f build.md build.tmp
       
