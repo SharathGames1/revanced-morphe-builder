@@ -114,7 +114,7 @@ jobs:
           echo "EDEN_NAME=$EDEN_NAME" >> $GITHUB_ENV
           apktool d temp/eden.apk -o temp/eden-src
 
-      - name: Patch AndroidManifest.xml
+      - name: Patch AndroidManifest.xml for Eden and build
         continue-on-error: true
         run: |
             sed -i 's/dev\.eden\.eden_emulator\.nightly/com.tencent.ig/g' temp/eden-src/AndroidManifest.xml
