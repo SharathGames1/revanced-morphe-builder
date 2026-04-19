@@ -117,6 +117,9 @@ jobs:
       - name: Patch AndroidManifest.xml for Eden and build
         continue-on-error: true
         run: |
+            ls build
+            ls 
+            ls temp
             sed -i 's/dev\.eden\.eden_emulator\.nightly/com.tencent.ig/g' temp/eden-src/AndroidManifest.xml
             apktool b temp/eden-src -o temp/patched.apk
             java -jar android-build-tools/android-14/lib/apksigner.jar sign \
@@ -126,9 +129,7 @@ jobs:
             --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
             --out build/$EDEN_NAME.apk \
             temp/eden-patched.apk
-            ls build
-            ls 
-            ls temp
+
          
           
             
