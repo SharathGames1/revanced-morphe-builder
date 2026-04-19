@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: "zulu"
-          java-version: "25"
+          java-version: "21"
 
       - name: Checkout
         uses: actions/checkout@v6
@@ -94,6 +94,7 @@ jobs:
       - name: Patch targetSdkVersion and compile Dolphin
         continue-on-error: true
         run: |
+          echo "$DOLPHIN_NAME"
           sed -i -E 's/^( *targetSdkVersion: *)[0-9]+/\129/' temp/dolphin-src/apktool.yml
           apktool b temp/dolphin-src -o temp/dolphin-patched.apk
           java -jar android-build-tools/android-14/lib/apksigner.jar sign \
@@ -117,11 +118,8 @@ jobs:
       - name: Patch AndroidManifest.xml for Eden and build
         continue-on-error: true
         run: |
-            ls build
-            ls 
-            ls temp
             sed -i 's/dev\.eden\.eden_emulator\.nightly/com.tencent.ig/g' temp/eden-src/AndroidManifest.xml
-            apktool b temp/eden-src -o temp/patched.apk
+            apktool b temp/eden-src -o temp/eden-patched.apk
             java -jar android-build-tools/android-14/lib/apksigner.jar sign \
             --ks ks-p12.keystore \
             --ks-type PKCS12 \
