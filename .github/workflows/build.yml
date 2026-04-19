@@ -126,7 +126,9 @@ jobs:
             --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
             --out build/$EDEN_NAME.apk \
             temp/eden-patched.apk
-            
+            ls build
+            ls 
+            ls temp
          
           
             
