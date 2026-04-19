@@ -112,14 +112,13 @@ jobs:
             temp/dolphin-patched.apk
       - name: Get latest Eden build and decompile
         continue-on-error: true
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          EDEN_APK_URL=$(curl -fSsL https://git.eden-emu.dev/api/v1/repos/eden-ci/nightly/releases | jq -r '.[0] | .assets | .[] | select(.name | test("standard.apk"))| .browser_download_url')
-
-          EDEN_NAME=$(basename "$EDEN_APK_URL" .apk)
-
-          echo "EDEN_APK_URL=$EDEN_APK_URL" >> $GITHUB_ENV
-          echo "EDEN_NAME=$NAME" >> $GITHUB_ENV
-          curl -L "$EDEN_APK_URL" -o temp/eden.apk
+          export EDEN_ID=$(gh run list -R Eden-CI/Workflow -w nightly.yml --status success --limit 1 --json databaseId -q ".[0].databaseId")
+          export EDEN_NAME=$(gh run view $ID -R Eden-CI/Workflow | grep standard.apk)
+          gh api "/repos/Eden-CI/Workflow/actions/artifacts/$(gh api repos/Eden-CI/Workflow/actions/runs/$ID/artifacts --jq '.artifacts[] | select(.name| contains("standard.apk")) | .id')/zip" > temp/eden.apk
+          echo "EDEN_NAME=$EDEN_NAME" >> $GITHUB_ENV
           apktool d temp/eden.apk -o temp/eden-src
 
       - name: Patch AndroidManifest.xml
