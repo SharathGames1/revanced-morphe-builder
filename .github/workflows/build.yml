@@ -54,7 +54,7 @@ jobs:
 
          echo "NEXT_VER_CODE=$((TAG + 10000))" >> $GITHUB_OUTPUT
 
-      - name: Build modules/APKs
+      - name: Build Revanced/Morphe modules/APKs
         run: if [ -f "config.json" ]; then bash ./build.sh config.json; else bash  ./build.sh config.toml; fi
         continue-on-error: true
         env:
@@ -64,21 +64,14 @@ jobs:
           GITHUB_REPOSITORY: $GITHUB_REPOSITORY
           NEXT_VER_CODE: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
           
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y jq unzip wget zip
-
-      # ⚡ Install Apktool v3.0.1
-      - name: Install Apktool
+      - name: Install Dependencies for APK Editing
         run: |
+          sudo apt-get update && sudo apt-get install -y jq unzip wget zip
           wget -q https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool
           wget -q https://github.com/iBotPeaches/Apktool/releases/download/v3.0.1/apktool_3.0.1.jar -O apktool.jar
           chmod +x apktool
           sudo mv apktool /usr/local/bin/apktool
           sudo mv apktool.jar /usr/local/bin/apktool.jar
-
-      # 🏗️ Install Android Build Tools r34
-      - name: Install Android Build Tools
-        run: |
           wget -q https://dl.google.com/android/repository/build-tools_r34-linux.zip -O build-tools.zip
           unzip -q build-tools.zip -d android-build-tools
 
@@ -116,8 +109,8 @@ jobs:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           export EDEN_ID=$(gh run list -R Eden-CI/Workflow -w nightly.yml --status success --limit 1 --json databaseId -q ".[0].databaseId")
-          export EDEN_NAME=$(gh run view $ID -R Eden-CI/Workflow | grep standard.apk)
-          gh api "/repos/Eden-CI/Workflow/actions/artifacts/$(gh api repos/Eden-CI/Workflow/actions/runs/$ID/artifacts --jq '.artifacts[] | select(.name| contains("standard.apk")) | .id')/zip" > temp/eden.apk
+          export EDEN_NAME=$(gh run view $EDEN_ID -R Eden-CI/Workflow | grep standard.apk)
+          gh api "/repos/Eden-CI/Workflow/actions/artifacts/$(gh api repos/Eden-CI/Workflow/actions/runs/$EDEN_ID/artifacts --jq '.artifacts[] | select(.name| contains("standard.apk")) | .id')/zip" > temp/eden.apk
           echo "EDEN_NAME=$EDEN_NAME" >> $GITHUB_ENV
           apktool d temp/eden.apk -o temp/eden-src
 
