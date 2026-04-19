@@ -71,13 +71,4 @@ build-mode = "apk"
 patches-source = "crimera/piko"
 enabled = "false"
 
-[Amazon-India]
-uptodown-dlurl = "https://amazon-india.en.uptodown.com/android"
-patches-source = "hoo-dles/morphe-patches"
-build-mode = "apk"
-exclusive-patches = true
-included-patches = "'Disable Pairip license check'"
-cli-source = "MorpheApp/morphe-cli"
-patches-version = "dev"
-cli-version = "latest"
 
