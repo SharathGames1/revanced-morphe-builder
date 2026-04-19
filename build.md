@@ -10,5 +10,5 @@ CLI: MorpheApp/morphe-cli-1.7.0-all.jar
 Patches: hoo-dles/patches-1.26.0-dev.1.mpp  
 [Changelog](https://github.com/hoo-dles/morphe-patches/releases/tag/v1.26.0-dev.1)
 
-Patches: MorpheApp/patches-1.24.0-dev.11.mpp  
-[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v1.24.0-dev.11)  
+Patches: MorpheApp/patches-1.24.0-dev.12.mpp  
+[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v1.24.0-dev.12)  
