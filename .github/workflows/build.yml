@@ -85,7 +85,7 @@ jobs:
               v=$(NF-2); b=$(NF-1);
               if (v>V || (v==V && b>B)) {V=v; B=b; U=$0}
             } END{print U}')
-          DOLPHIN_NAME=$(basename "$APK_URL" .apk)
+          DOLPHIN_NAME=$(basename "$DOLPHIN_APK_URL" .apk)
           echo "DOLPHIN_APK_URL=$DOLPHIN_APK_URL" >> $GITHUB_ENV
           echo "DOLPHIN_NAME=$DOLPHIN_NAME" >> $GITHUB_ENV
           curl -L "$DOLPHIN_APK_URL" -o temp/dolphin.apk
