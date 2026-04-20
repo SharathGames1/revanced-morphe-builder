@@ -6,5 +6,5 @@ test*
 /logs
 build.md
 cmpr
-.env
-.keystore
+*.env
+*.keystore
