@@ -644,7 +644,7 @@ build_rv() {
 
 	local sig_check_apk
 	if [ -f "${stock_apk}.apkm" ]; then
-		unzip -j "${stock_apk}.apkm" "base.apk" -d "${stock_apk}.base" >/dev/null
+		unzip -j "${stock_apk}.apkm" "$pkg_name.apk" -d "${stock_apk}.base" >/dev/null
 		sig_check_apk="${stock_apk}.base/base.apk"
 	else
 		sig_check_apk="${stock_apk}"
