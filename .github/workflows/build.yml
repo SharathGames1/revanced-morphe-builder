@@ -63,7 +63,7 @@ jobs:
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
           GITHUB_REPOSITORY: $GITHUB_REPOSITORY
           NEXT_VER_CODE: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
-          
+
       - name: Install Dependencies for APK Editing
         run: |
           sudo apt-get update && sudo apt-get install -y jq unzip wget zip
@@ -151,9 +151,6 @@ jobs:
             --out build/$FCL_NAME.apk \
             temp/fcl-patched.apk
 
-        
-          
-            
       - name: Get output
         id: get_output
         run: |
@@ -163,7 +160,7 @@ jobs:
           echo -e "Patched Dolphin SDK 29: ${DOLPHIN_NAME}\nPatched Eden PUBG: ${EDEN_NAME}\nPatched FCL CoD: ${FCL_NAME}" >> "$GITHUB_OUTPUT"
           echo "${DELIM}" >> "$GITHUB_OUTPUT"
           cp -f build.md build.tmp
-      
+
       - name: Upload release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -210,9 +207,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-      
           git add build.md *-update.json
-      
           if ! git diff --cached --quiet; then
             git commit -m "Bump version ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}"
             git push origin HEAD:update
