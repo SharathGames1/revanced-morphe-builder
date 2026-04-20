@@ -33,7 +33,7 @@ cli-version = "latest"
 excluded-patches = "'Change header'"
 patcher-args = "-e 'Custom branding' -OcustomName='YouTube Morphe'  -e 'Theme' -OdarkThemeBackgroundColor=#000000"
 build-mode = "both"
-#enabled= "false"
+enabled= "false"
 
 #hoo-dles
 
@@ -47,7 +47,8 @@ exclusive-patches = true
 cli-source = "MorpheApp/morphe-cli"
 patches-version = "dev"
 cli-version = "latest"
-#enabled=false
+enabled=false
+
 [Twitter]
 apkmirror-dlurl = "https://apkmirror.com/apk/twitter-inc/twitter/"
 uptodown-dlurl = "https://twitter.en.uptodown.com/android"
