@@ -131,8 +131,7 @@ jobs:
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          FCL_APK_URL=curl -fSsL https://api.github.com/repos/FCL-Team/foldcraftlauncher/releases/latest | jq -r '.assets[0].browser_download_url'
-          echo "EDEN_NAME=$EDEN_NAME" >> $GITHUB_ENV
+          FCL_APK_URL=$(curl -fSsL https://api.github.com/repos/FCL-Team/foldcraftlauncher/releases/latest | jq -r '.assets[0].browser_download_url')
           FCL_NAME=$(basename "$FCL_APK_URL" .apk)
           echo "FCL_APK_URL=$FCL_APK_URL" >> $GITHUB_ENV
           echo "FCL_NAME=$FCL_NAME" >> $GITHUB_ENV
@@ -161,7 +160,7 @@ jobs:
           DELIM="$(openssl rand -hex 8)"
           echo "BUILD_LOG<<${DELIM}" >> "$GITHUB_OUTPUT"
           cat build.md >> "$GITHUB_OUTPUT"
-          echo -e "Patched Dolphin SDK 29: ${DOLPHIN_NAME}\nPatched Eden PUBG: ${EDEN_NAME}" >> "$GITHUB_OUTPUT"
+          echo -e "Patched Dolphin SDK 29: ${DOLPHIN_NAME}\nPatched Eden PUBG: ${EDEN_NAME}\nPatched FCL CoD: ${FCL_NAME}" >> "$GITHUB_OUTPUT"
           echo "${DELIM}" >> "$GITHUB_OUTPUT"
           cp -f build.md build.tmp
       
