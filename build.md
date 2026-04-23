@@ -1,6 +1,6 @@
 YouTube-Morphe: 20.47.62  
 PrimeVideo: 3.0.447.757  
-Twitter: 11.83.1-release.0  
+Twitter: 11.84.1-release.0  
 
 Install [Microg](https://github.com/MorpheApp/MicroG-RE/releases) for non-root YouTube and YT Music APKs  
 Use [zygisk-detach](https://github.com/j-hc/zygisk-detach) to detach YouTube and YT Music modules from Play Store  
