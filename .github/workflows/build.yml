@@ -150,7 +150,7 @@ jobs:
       - name: Patch AndroidManifest.xml for FCL and build
         continue-on-error: true
         run: |
-            sed -i 's/com\.tungsten\.fcl/com.activision.callofduty.shooter/g' temp/fcl-src/AndroidManifest.xml
+            sed -i -e 's/package="com\.tungsten\.fcl"/package="com.activision.callofduty.shooter"/' -e 's/com\.tungsten\.fcl\.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION/com.activision.callofduty.shooter.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION/g' -e 's/com\.tungsten\.fcl\.document\.provider/com.activision.callofduty.shooter.document.provider/g' -e 's/com\.tungsten\.fcl\.provider/com.activision.callofduty.shooter.provider/g' -e 's/com\.tungsten\.fcl\.crashreporterinitprovider/com.activision.callofduty.shooter.crashreporterinitprovider/g' -e 's/com\.tungsten\.fcl\.androidx-startup/com.activision.callofduty.shooter.androidx-startup/g' temp/fcl-src/AndroidManifest.xml
             apktool b temp/fcl-src -o temp/fcl-patched.apk
             java -jar android-build-tools/android-14/lib/apksigner.jar sign \
             --ks ks-p12.keystore \
