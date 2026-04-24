@@ -105,6 +105,7 @@ jobs:
             --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
             --out temp/$DOLPHIN_NAME.apk \
             temp/dolphin-patched.apk
+          fi
 
       - name: Get latest Eden build and patch
         continue-on-error: true
