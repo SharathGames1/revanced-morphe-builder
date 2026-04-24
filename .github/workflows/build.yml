@@ -74,7 +74,12 @@ jobs:
           sudo mv apktool.jar /usr/local/bin/apktool.jar
           wget -q https://dl.google.com/android/repository/build-tools_r34-linux.zip -O build-tools.zip
           unzip -q build-tools.zip -d android-build-tools
-
+      - name: Get comparison
+        continue-on-error: true
+        run: |
+         EDEN_LATEST=$(gh release view --json body --template '{{.body}}' | grep Eden | awk '{print $NF}' )
+         DOLPHIN_LATEST=$(gh release view --json body --template '{{.body}}'v| grep Dolphin | awk '{print $NF}')
+         FCL_LATEST=$(gh release view --json body --template '{{.body}}'v| grep FCL| awk '{print $NF}')
       # 🔎 Find latest Dolphin build
       - name: Find latest Dolphin build and decompile
         continue-on-error: true
@@ -101,8 +106,10 @@ jobs:
             --ks-type PKCS12 \
             --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
             --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
-            --out build/$DOLPHIN_NAME.apk \
+            --out temp/$DOLPHIN_NAME.apk \
             temp/dolphin-patched.apk
+            if [ $DOLPHIN_NAME -ne $DOLPHIN_LATEST ]; then
+             mv temp/$DOLPHIN_NAME.apk build
       - name: Get latest Eden build and decompile
         continue-on-error: true
         env:
@@ -124,21 +131,23 @@ jobs:
             --ks-type PKCS12 \
             --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
             --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
-            --out build/$EDEN_NAME.apk \
+            --out temp/$EDEN_NAME.apk \
             temp/eden-patched.apk
+            if [ $EDEN_NAME -ne $EDEN_LATEST ]; then
+             mv temp/$EDEN_NAME.apk build
       - name: Get latest FCL build and decompile
         continue-on-error: true
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          FCL_APK_URL=$(curl -fSsL https://api.github.com/repos/FCL-Team/foldcraftlauncher/releases/latest | jq -r '.assets[1].browser_download_url')
+          FCL_APK_URL=$(curl -fSsL https://api.github.com/repos/FCL-Team/foldcraftlauncher/releases/latest | jq -r '.assets[0].browser_download_url')
           FCL_NAME=$(basename "$FCL_APK_URL" .apk)
           echo "FCL_APK_URL=$FCL_APK_URL" >> $GITHUB_ENV
           echo "FCL_NAME=$FCL_NAME" >> $GITHUB_ENV
           curl -L "$FCL_APK_URL" -o temp/fcl.apk
           apktool d temp/fcl.apk -o temp/fcl-src
 
-      - name: Patch AndroidManifest.xml for Eden and build
+      - name: Patch AndroidManifest.xml for FCL and build
         continue-on-error: true
         run: |
             sed -i 's/com\.tungsten\.fcl/com.activision.callofduty.shooter/g' temp/fcl-src/AndroidManifest.xml
@@ -148,8 +157,10 @@ jobs:
             --ks-type PKCS12 \
             --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
             --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
-            --out build/$FCL_NAME.apk \
+            --out temp/$FCL_NAME.apk \
             temp/fcl-patched.apk
+            if [ $FCL_NAME -ne $FCL_LATEST ]; then
+             mv temp/$FCL_NAME.apk build
 
       - name: Get output
         id: get_output
