@@ -131,7 +131,7 @@ jobs:
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          FCL_APK_URL=$(curl -fSsL https://api.github.com/repos/FCL-Team/foldcraftlauncher/releases/latest | jq -r '.assets[0].browser_download_url')
+          FCL_APK_URL=$(curl -fSsL https://api.github.com/repos/FCL-Team/foldcraftlauncher/releases/latest | jq -r '.assets[1].browser_download_url')
           FCL_NAME=$(basename "$FCL_APK_URL" .apk)
           echo "FCL_APK_URL=$FCL_APK_URL" >> $GITHUB_ENV
           echo "FCL_NAME=$FCL_NAME" >> $GITHUB_ENV
