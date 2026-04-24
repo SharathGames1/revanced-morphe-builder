@@ -74,7 +74,7 @@ jobs:
           sudo mv apktool.jar /usr/local/bin/apktool.jar
           wget -q https://dl.google.com/android/repository/build-tools_r34-linux.zip -O build-tools.zip
           unzip -q build-tools.zip -d android-build-tools
-      - name: Get comparison
+      - name: Get last version 
         continue-on-error: true
         run: |
          EDEN_LATEST=$(gh release view --json body --template '{{.body}}' | grep Eden | awk '{print $NF}' )
@@ -93,23 +93,19 @@ jobs:
           DOLPHIN_NAME=$(basename "$DOLPHIN_APK_URL" .apk)
           echo "DOLPHIN_APK_URL=$DOLPHIN_APK_URL" >> $GITHUB_ENV
           echo "DOLPHIN_NAME=$DOLPHIN_NAME" >> $GITHUB_ENV
-          curl -L "$DOLPHIN_APK_URL" -o temp/dolphin.apk
-          apktool d temp/dolphin.apk -o temp/dolphin-src
-      # ✏️ Patch targetSdkVersion
-      - name: Patch targetSdkVersion and compile Dolphin
-        continue-on-error: true
-        run: |
-          sed -i -E 's/^( *targetSdkVersion: *)[0-9]+/\129/' temp/dolphin-src/apktool.yml
-          apktool b temp/dolphin-src -o temp/dolphin-patched.apk
-          java -jar android-build-tools/android-14/lib/apksigner.jar sign \
+          if [ $DOLPHIN_NAME -ne $DOLPHIN_LATEST ] || [ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]; then
+           curl -L "$DOLPHIN_APK_URL" -o temp/dolphin.apk
+           apktool d temp/dolphin.apk -o temp/dolphin-src
+           sed -i -E 's/^( *targetSdkVersion: *)[0-9]+/\129/' temp/dolphin-src/apktool.yml
+           apktool b temp/dolphin-src -o temp/dolphin-patched.apk
+           java -jar android-build-tools/android-14/lib/apksigner.jar sign \
             --ks ks-p12.keystore \
             --ks-type PKCS12 \
             --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
             --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
             --out temp/$DOLPHIN_NAME.apk \
             temp/dolphin-patched.apk
-            if [ $DOLPHIN_NAME -ne $DOLPHIN_LATEST ]; then
-             mv temp/$DOLPHIN_NAME.apk build
+
       - name: Get latest Eden build and decompile
         continue-on-error: true
         env:
@@ -119,11 +115,8 @@ jobs:
           export EDEN_NAME=$(gh run view $EDEN_ID -R Eden-CI/Workflow | grep standard.apk)
           gh api "/repos/Eden-CI/Workflow/actions/artifacts/$(gh api repos/Eden-CI/Workflow/actions/runs/$EDEN_ID/artifacts --jq '.artifacts[] | select(.name| contains("standard.apk")) | .id')/zip" > temp/eden.apk
           echo "EDEN_NAME=$EDEN_NAME" >> $GITHUB_ENV
-          apktool d temp/eden.apk -o temp/eden-src
-
-      - name: Patch AndroidManifest.xml for Eden and build
-        continue-on-error: true
-        run: |
+          if [ $EDEN_NAME -ne $EDEN_LATEST ] || [ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]; then
+            apktool d temp/eden.apk -o temp/eden-src
             sed -i 's/dev\.eden\.eden_emulator\.nightly/com.tencent.ig/g' temp/eden-src/AndroidManifest.xml
             apktool b temp/eden-src -o temp/eden-patched.apk
             java -jar android-build-tools/android-14/lib/apksigner.jar sign \
@@ -131,10 +124,10 @@ jobs:
             --ks-type PKCS12 \
             --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
             --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
-            --out temp/$EDEN_NAME.apk \
+            --out build/$EDEN_NAME.apk \
             temp/eden-patched.apk
-            if [ $EDEN_NAME -ne $EDEN_LATEST ]; then
-             mv temp/$EDEN_NAME.apk build
+          fi
+            
       - name: Get latest FCL build and decompile
         continue-on-error: true
         env:
@@ -144,23 +137,19 @@ jobs:
           FCL_NAME=$(basename "$FCL_APK_URL" .apk)
           echo "FCL_APK_URL=$FCL_APK_URL" >> $GITHUB_ENV
           echo "FCL_NAME=$FCL_NAME" >> $GITHUB_ENV
-          curl -L "$FCL_APK_URL" -o temp/fcl.apk
-          apktool d temp/fcl.apk -o temp/fcl-src
-
-      - name: Patch AndroidManifest.xml for FCL and build
-        continue-on-error: true
-        run: |
-            sed -i -e 's/package="com\.tungsten\.fcl"/package="com.activision.callofduty.shooter"/' -e 's/com\.tungsten\.fcl\.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION/com.activision.callofduty.shooter.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION/g' -e 's/com\.tungsten\.fcl\.document\.provider/com.activision.callofduty.shooter.document.provider/g' -e 's/com\.tungsten\.fcl\.provider/com.activision.callofduty.shooter.provider/g' -e 's/com\.tungsten\.fcl\.crashreporterinitprovider/com.activision.callofduty.shooter.crashreporterinitprovider/g' -e 's/com\.tungsten\.fcl\.androidx-startup/com.activision.callofduty.shooter.androidx-startup/g' temp/fcl-src/AndroidManifest.xml
-            apktool b temp/fcl-src -o temp/fcl-patched.apk
-            java -jar android-build-tools/android-14/lib/apksigner.jar sign \
+          lif [ $FCL_NAME -ne $FCL_LATEST ] || [ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ] ; then
+           curl -L "$FCL_APK_URL" -o temp/fcl.apk
+           apktool d temp/fcl.apk -o temp/fcl-src
+           sed -i -e 's/package="com\.tungsten\.fcl"/package="com.activision.callofduty.shooter"/' -e 's/com\.tungsten\.fcl\.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION/com.activision.callofduty.shooter.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION/g' -e 's/com\.tungsten\.fcl\.document\.provider/com.activision.callofduty.shooter.document.provider/g' -e 's/com\.tungsten\.fcl\.provider/com.activision.callofduty.shooter.provider/g' -e 's/com\.tungsten\.fcl\.crashreporterinitprovider/com.activision.callofduty.shooter.crashreporterinitprovider/g' -e 's/com\.tungsten\.fcl\.androidx-startup/com.activision.callofduty.shooter.androidx-startup/g' temp/fcl-src/AndroidManifest.xml
+           apktool b temp/fcl-src -o temp/fcl-patched.apk
+           java -jar android-build-tools/android-14/lib/apksigner.jar sign \
             --ks ks-p12.keystore \
             --ks-type PKCS12 \
             --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
             --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
-            --out temp/$FCL_NAME.apk \
+            --out build/$FCL_NAME.apk \
             temp/fcl-patched.apk
-            if [ $FCL_NAME -ne $FCL_LATEST ]; then
-             mv temp/$FCL_NAME.apk build
+          fi
 
       - name: Get output
         id: get_output
