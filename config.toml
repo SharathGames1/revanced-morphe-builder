@@ -60,7 +60,7 @@ cli-version = "latest"
 build-mode = "apk"
 patches-source = "crimera/piko"
 patcher-args = "--continue-on-error"
-version = "latest"
+version = "11.81.0-release.0"
 
 [Instagram]
 apkmirror-dlurl = "https://apkmirror.com/apk/instagram/instagram-instagram/"
@@ -71,6 +71,6 @@ patches-version = "dev"
 cli-version = "latest"
 build-mode = "apk"
 patches-source = "crimera/piko"
-enabled = "false"
+#enabled = "false"
 
 
