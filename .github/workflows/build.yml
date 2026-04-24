@@ -81,7 +81,7 @@ jobs:
          DOLPHIN_LATEST=$(gh release view --json body --template '{{.body}}'v| grep Dolphin | awk '{print $NF}')
          FCL_LATEST=$(gh release view --json body --template '{{.body}}'v| grep FCL| awk '{print $NF}')
       # 🔎 Find latest Dolphin build
-      - name: Find latest Dolphin build and decompile
+      - name: Find latest Dolphin build and patch
         continue-on-error: true
         run: |
           DOLPHIN_APK_URL=$(curl -s https://dolphin-emu.org/download/ \
@@ -106,7 +106,7 @@ jobs:
             --out temp/$DOLPHIN_NAME.apk \
             temp/dolphin-patched.apk
 
-      - name: Get latest Eden build and decompile
+      - name: Get latest Eden build and patch
         continue-on-error: true
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -128,7 +128,7 @@ jobs:
             temp/eden-patched.apk
           fi
             
-      - name: Get latest FCL build and decompile
+      - name: Get latest FCL build and patch
         continue-on-error: true
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -137,7 +137,7 @@ jobs:
           FCL_NAME=$(basename "$FCL_APK_URL" .apk)
           echo "FCL_APK_URL=$FCL_APK_URL" >> $GITHUB_ENV
           echo "FCL_NAME=$FCL_NAME" >> $GITHUB_ENV
-          lif [ $FCL_NAME -ne $FCL_LATEST ] || [ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ] ; then
+          if [ $FCL_NAME -ne $FCL_LATEST ] || [ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ] ; then
            curl -L "$FCL_APK_URL" -o temp/fcl.apk
            apktool d temp/fcl.apk -o temp/fcl-src
            sed -i -e 's/package="com\.tungsten\.fcl"/package="com.activision.callofduty.shooter"/' -e 's/com\.tungsten\.fcl\.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION/com.activision.callofduty.shooter.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION/g' -e 's/com\.tungsten\.fcl\.document\.provider/com.activision.callofduty.shooter.document.provider/g' -e 's/com\.tungsten\.fcl\.provider/com.activision.callofduty.shooter.provider/g' -e 's/com\.tungsten\.fcl\.crashreporterinitprovider/com.activision.callofduty.shooter.crashreporterinitprovider/g' -e 's/com\.tungsten\.fcl\.androidx-startup/com.activision.callofduty.shooter.androidx-startup/g' temp/fcl-src/AndroidManifest.xml
