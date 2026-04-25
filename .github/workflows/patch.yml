@@ -129,7 +129,7 @@ jobs:
            apktool d temp/fcl.apk -o temp/fcl-src
            sed -i -e 's/package="com\.tungsten\.fcl"/package="com.activision.callofduty.shooter"/' -e 's/com\.tungsten\.fcl\.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION/com.activision.callofduty.shooter.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION/g' -e 's/com\.tungsten\.fcl\.document\.provider/com.activision.callofduty.shooter.document.provider/g' -e 's/com\.tungsten\.fcl\.provider/com.activision.callofduty.shooter.provider/g' -e 's/com\.tungsten\.fcl\.crashreporterinitprovider/com.activision.callofduty.shooter.crashreporterinitprovider/g' -e 's/com\.tungsten\.fcl\.androidx-startup/com.activision.callofduty.shooter.androidx-startup/g' temp/fcl-src/AndroidManifest.xml
            apktool b temp/fcl-src -o temp/fcl-patched.apk
-           zipalign temp/fcl-patched.apk temp/fcl-aligned.apk
+           zipalign 4 temp/fcl-patched.apk temp/fcl-aligned.apk
            java -jar android-build-tools/android-14/lib/apksigner.jar sign \
             --ks ks-p12.keystore \
             --ks-type PKCS12 \
@@ -153,7 +153,7 @@ jobs:
            apktool d temp/geode.apk -o temp/geode-src
            sed -i 's/com\.geode\.launcher/com.pubg.krmobile/g' temp/geode-src/AndroidManifest.xml
            apktool b temp/geode-src -o temp/geode-patched.apk
-           zipalign temp/geode-patched.apk  temp/geode-aligned.apk
+           zipalign 4 temp/geode-patched.apk temp/geode-aligned.apk
            java -jar android-build-tools/android-14/lib/apksigner.jar sign \
             --ks ks-p12.keystore \
             --ks-type PKCS12 \
