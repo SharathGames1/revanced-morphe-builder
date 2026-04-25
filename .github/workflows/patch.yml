@@ -30,7 +30,8 @@ jobs:
          if [ -z "$TAG" ]; then TAG='patch-0'; fi
          prefix="${TAG%%[0-9]*}"
          number="${TAG#$prefix}"
-         printf -v NEXT_VER_CODE "%s%d" "$prefix" "$((number + 1))" >> $GITHUB_OUTPUT
+         printf -v NEXT_VER_CODE "%s%d" "$prefix" "$((number + 1))" 
+         echo "NEXT_VER_CODE=$NEXT_VER_CODE" >> $GITHUB_OUTPUT
 
       - name: Decode Keystore
         run: |
