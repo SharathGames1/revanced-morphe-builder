@@ -81,6 +81,7 @@ jobs:
          EDEN_LATEST=$(gh release view --json body --template '{{.body}}' | grep Eden | awk '{print $NF}' )
          DOLPHIN_LATEST=$(gh release view --json body --template '{{.body}}'v| grep Dolphin | awk '{print $NF}')
          FCL_LATEST=$(gh release view --json body -emplate '{{.body}}'v| grep FCL| awk '{print $NF}')
+         GEODE_LATEST=$(gh release view --json body --template '{{.body}}'v| grep Geode | awk '{print $NF}')
       # 🔎 Find latest Dolphin build
       - name: Find latest Dolphin build and patch
         continue-on-error: true
@@ -94,7 +95,7 @@ jobs:
           DOLPHIN_NAME=$(basename "$DOLPHIN_APK_URL" .apk)
           echo "DOLPHIN_APK_URL=$DOLPHIN_APK_URL" >> $GITHUB_ENV
           echo "DOLPHIN_NAME=$DOLPHIN_NAME" >> $GITHUB_ENV
-          if [ $DOLPHIN_NAME -ne $DOLPHIN_LATEST ] || [ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]; then
+          if [[ $DOLPHIN_NAME != $DOLPHIN_LATEST ]] || [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
            curl -L "$DOLPHIN_APK_URL" -o temp/dolphin.apk
            apktool d temp/dolphin.apk -o temp/dolphin-src
            sed -i -E 's/^( *targetSdkVersion: *)[0-9]+/\129/' temp/dolphin-src/apktool.yml
@@ -117,7 +118,7 @@ jobs:
           export EDEN_NAME=$(gh run view $EDEN_ID -R Eden-CI/Workflow | grep standard.apk)
           gh api "/repos/Eden-CI/Workflow/actions/artifacts/$(gh api repos/Eden-CI/Workflow/actions/runs/$EDEN_ID/artifacts --jq '.artifacts[] | select(.name| contains("standard.apk")) | .id')/zip" > temp/eden.apk
           echo "EDEN_NAME=$EDEN_NAME" >> $GITHUB_ENV
-          if [ $EDEN_NAME -ne $EDEN_LATEST ] || [ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]; then
+          if [[ $EDEN_NAME != $EDEN_LATEST ]] || [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
             apktool d temp/eden.apk -o temp/eden-src
             sed -i 's/dev\.eden\.eden_emulator\.nightly/com.tencent.ig/g' temp/eden-src/AndroidManifest.xml
             apktool b temp/eden-src -o temp/eden-patched.apk 
@@ -139,7 +140,7 @@ jobs:
           FCL_NAME=$(basename "$FCL_APK_URL" .apk)
           echo "FCL_APK_URL=$FCL_APK_URL" >> $GITHUB_ENV
           echo "FCL_NAME=$FCL_NAME" >> $GITHUB_ENV
-          if [ $FCL_NAME -ne $FCL_LATEST ] || [ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ] ; then
+          if [[ $FCL_NAME != $FCL_LATEST ]] || [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]] ; then
            curl -L "$FCL_APK_URL" -o temp/fcl.apk
            apktool d temp/fcl.apk -o temp/fcl-src
            sed -i -e 's/package="com\.tungsten\.fcl"/package="com.activision.callofduty.shooter"/' -e 's/com\.tungsten\.fcl\.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION/com.activision.callofduty.shooter.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION/g' -e 's/com\.tungsten\.fcl\.document\.provider/com.activision.callofduty.shooter.document.provider/g' -e 's/com\.tungsten\.fcl\.provider/com.activision.callofduty.shooter.provider/g' -e 's/com\.tungsten\.fcl\.crashreporterinitprovider/com.activision.callofduty.shooter.crashreporterinitprovider/g' -e 's/com\.tungsten\.fcl\.androidx-startup/com.activision.callofduty.shooter.androidx-startup/g' temp/fcl-src/AndroidManifest.xml
@@ -153,6 +154,30 @@ jobs:
             --out build/$FCL_NAME.apk \
             temp/fcl-aligned.apk
           fi
+          
+      - name: Get latest Geode build and patch
+        continue-on-error: true
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          GEODE_APK_URL=$(curl -fSsL https://api.github.com/repos/geode-sdk/android-launcher/releases/latest |  jq -r '.assets[] | select(.name | endswith(".apk") and (contains("android32") | not)) | .browser_download_url' )
+          GEODE_NAME=$(basename "$GEODE_APK_URL" .apk)
+          echo "GEODE_APK_URL=$GEODE_APK_URL" >> $GITHUB_ENV
+          echo "GEODE_NAME=$GEODE_NAME" >> $GITHUB_ENV
+          if [[ $GEODE_NAME != $GEODE_LATEST ]] || [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]] ; then
+           curl -L "$GEODE_APK_URL" -o temp/geode.apk
+           apktool d temp/geode.apk -o temp/geode-src
+           sed -i 's/com\.geode\.launcher/com.pubg.krmobile/g' temp/geode-src/AndroidManifest.xml
+           apktool b temp/geode-src -o temp/geode-patched.apk
+           zipalign -v 4 temp/geode-patched.apk zipalign -v 4 temp/geode-aligned.apk
+           java -jar android-build-tools/android-14/lib/apksigner.jar sign \
+            --ks ks-p12.keystore \
+            --ks-type PKCS12 \
+            --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
+            --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
+            --out build/$GEODE_NAME.apk \
+            temp/geode-aligned.apk
+          fi
 
       - name: Get output
         id: get_output
@@ -160,7 +185,7 @@ jobs:
           DELIM="$(openssl rand -hex 8)"
           echo "BUILD_LOG<<${DELIM}" >> "$GITHUB_OUTPUT"
           cat build.md >> "$GITHUB_OUTPUT"
-          echo -e "Patched Dolphin SDK 29: ${DOLPHIN_NAME}\nPatched Eden PUBG: ${EDEN_NAME}\nPatched FCL CoD: ${FCL_NAME}" >> "$GITHUB_OUTPUT"
+          echo -e "Patched Dolphin SDK 29: ${DOLPHIN_NAME}\nPatched Geode: ${GEODE_NAME}\nPatched Eden PUBG: ${EDEN_NAME}\nPatched FCL CoD: ${FCL_NAME}" >> "$GITHUB_OUTPUT"
           echo "${DELIM}" >> "$GITHUB_OUTPUT"
           cp -f build.md build.tmp
 
