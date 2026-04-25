@@ -92,13 +92,14 @@ jobs:
            apktool d temp/dolphin.apk -o temp/dolphin-src
            sed -i -E 's/^( *targetSdkVersion: *)[0-9]+/\129/' temp/dolphin-src/apktool.yml
            apktool b temp/dolphin-src -o temp/dolphin-patched.apk
+           zipalign 4 temp/dolphin-patched.apk temp/dolphin-aligned.apk
            java -jar android-build-tools/android-14/lib/apksigner.jar sign \
             --ks ks-p12.keystore \
             --ks-type PKCS12 \
             --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
             --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
             --out build/$DOLPHIN_NAME.apk \
-            temp/dolphin-patched.apk
+            temp/dolphin-aligned.apk
           fi
 
       - name: Get latest Eden build and patch
@@ -114,13 +115,14 @@ jobs:
             apktool d temp/eden.apk -o temp/eden-src
             sed -i 's/dev\.eden\.eden_emulator\.nightly/com.tencent.ig/g' temp/eden-src/AndroidManifest.xml
             apktool b temp/eden-src -o temp/eden-patched.apk 
+            zipalign 4 temp/eden-patched.apk temp/eden-aligned.apk
             java -jar android-build-tools/android-14/lib/apksigner.jar sign \
             --ks ks-p12.keystore \
             --ks-type PKCS12 \
             --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
             --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
             --out build/$EDEN_NAME.apk \
-            temp/eden-patched.apk
+            temp/eden-aligned.apk
           fi
             
       - name: Get latest FCL build and patch
