@@ -8,8 +8,6 @@ on:
         default: true
 
   workflow_dispatch:
-  schedule:
-    - cron: 0 0/4 * * *
 
 jobs:
   run:
@@ -64,128 +62,12 @@ jobs:
           GITHUB_REPOSITORY: $GITHUB_REPOSITORY
           NEXT_VER_CODE: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
 
-      - name: Install Dependencies for APK Editing
-        run: |
-          sudo apt-get update && sudo apt-get install -y jq unzip wget zip zipalign 
-          wget -q https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool
-          wget -q https://github.com/iBotPeaches/Apktool/releases/download/v3.0.1/apktool_3.0.1.jar -O apktool.jar
-          chmod +x apktool
-          sudo mv apktool /usr/local/bin/apktool
-          sudo mv apktool.jar /usr/local/bin/apktool.jar
-          wget -q https://dl.google.com/android/repository/build-tools_r34-linux.zip -O build-tools.zip
-          unzip -q build-tools.zip -d android-build-tools
-      
-      - name: Get last version 
-        continue-on-error: true
-        run: |
-         EDEN_LATEST=$(gh release view --json body --template '{{.body}}' | grep Eden | awk '{print $NF}' )
-         DOLPHIN_LATEST=$(gh release view --json body --template '{{.body}}'v| grep Dolphin | awk '{print $NF}')
-         FCL_LATEST=$(gh release view --json body -emplate '{{.body}}'v| grep FCL| awk '{print $NF}')
-         GEODE_LATEST=$(gh release view --json body --template '{{.body}}'v| grep Geode | awk '{print $NF}')
-      # 🔎 Find latest Dolphin build
-      - name: Find latest Dolphin build and patch
-        continue-on-error: true
-        run: |
-          DOLPHIN_APK_URL=$(curl -s https://dolphin-emu.org/download/ \
-            | grep -Eo 'https://dl\.dolphin-emu\.org/builds/[a-z0-9/]+/dolphin-master-[0-9]+-[0-9]+\.apk' \
-            | awk -F'[-/.]' '{
-              v=$(NF-2); b=$(NF-1);
-              if (v>V || (v==V && b>B)) {V=v; B=b; U=$0}
-            } END{print U}')
-          DOLPHIN_NAME=$(basename "$DOLPHIN_APK_URL" .apk)
-          echo "DOLPHIN_APK_URL=$DOLPHIN_APK_URL" >> $GITHUB_ENV
-          echo "DOLPHIN_NAME=$DOLPHIN_NAME" >> $GITHUB_ENV
-          if [[ $DOLPHIN_NAME != $DOLPHIN_LATEST ]] || [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
-           curl -L "$DOLPHIN_APK_URL" -o temp/dolphin.apk
-           apktool d temp/dolphin.apk -o temp/dolphin-src
-           sed -i -E 's/^( *targetSdkVersion: *)[0-9]+/\129/' temp/dolphin-src/apktool.yml
-           apktool b temp/dolphin-src -o temp/dolphin-patched.apk
-           java -jar android-build-tools/android-14/lib/apksigner.jar sign \
-            --ks ks-p12.keystore \
-            --ks-type PKCS12 \
-            --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
-            --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
-            --out temp/$DOLPHIN_NAME.apk \
-            temp/dolphin-patched.apk
-          fi
-
-      - name: Get latest Eden build and patch
-        continue-on-error: true
-        env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          export EDEN_ID=$(gh run list -R Eden-CI/Workflow -w nightly.yml --status success --limit 1 --json databaseId -q ".[0].databaseId")
-          export EDEN_NAME=$(gh run view $EDEN_ID -R Eden-CI/Workflow | grep standard.apk)
-          gh api "/repos/Eden-CI/Workflow/actions/artifacts/$(gh api repos/Eden-CI/Workflow/actions/runs/$EDEN_ID/artifacts --jq '.artifacts[] | select(.name| contains("standard.apk")) | .id')/zip" > temp/eden.apk
-          echo "EDEN_NAME=$EDEN_NAME" >> $GITHUB_ENV
-          if [[ $EDEN_NAME != $EDEN_LATEST ]] || [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
-            apktool d temp/eden.apk -o temp/eden-src
-            sed -i 's/dev\.eden\.eden_emulator\.nightly/com.tencent.ig/g' temp/eden-src/AndroidManifest.xml
-            apktool b temp/eden-src -o temp/eden-patched.apk 
-            java -jar android-build-tools/android-14/lib/apksigner.jar sign \
-            --ks ks-p12.keystore \
-            --ks-type PKCS12 \
-            --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
-            --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
-            --out build/$EDEN_NAME.apk \
-            temp/eden-patched.apk
-          fi
-            
-      - name: Get latest FCL build and patch
-        continue-on-error: true
-        env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          FCL_APK_URL=$(curl -fSsL https://api.github.com/repos/FCL-Team/foldcraftlauncher/releases/latest | jq -r '.assets[0].browser_download_url')
-          FCL_NAME=$(basename "$FCL_APK_URL" .apk)
-          echo "FCL_APK_URL=$FCL_APK_URL" >> $GITHUB_ENV
-          echo "FCL_NAME=$FCL_NAME" >> $GITHUB_ENV
-          if [[ $FCL_NAME != $FCL_LATEST ]] || [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]] ; then
-           curl -L "$FCL_APK_URL" -o temp/fcl.apk
-           apktool d temp/fcl.apk -o temp/fcl-src
-           sed -i -e 's/package="com\.tungsten\.fcl"/package="com.activision.callofduty.shooter"/' -e 's/com\.tungsten\.fcl\.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION/com.activision.callofduty.shooter.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION/g' -e 's/com\.tungsten\.fcl\.document\.provider/com.activision.callofduty.shooter.document.provider/g' -e 's/com\.tungsten\.fcl\.provider/com.activision.callofduty.shooter.provider/g' -e 's/com\.tungsten\.fcl\.crashreporterinitprovider/com.activision.callofduty.shooter.crashreporterinitprovider/g' -e 's/com\.tungsten\.fcl\.androidx-startup/com.activision.callofduty.shooter.androidx-startup/g' temp/fcl-src/AndroidManifest.xml
-           apktool b temp/fcl-src -o temp/fcl-patched.apk
-           zipalign -v 4 temp/fcl-patched.apk zipalign -v 4 temp/fcl-aligned.apk
-           java -jar android-build-tools/android-14/lib/apksigner.jar sign \
-            --ks ks-p12.keystore \
-            --ks-type PKCS12 \
-            --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
-            --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
-            --out build/$FCL_NAME.apk \
-            temp/fcl-aligned.apk
-          fi
-          
-      - name: Get latest Geode build and patch
-        continue-on-error: true
-        env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          GEODE_APK_URL=$(curl -fSsL https://api.github.com/repos/geode-sdk/android-launcher/releases/latest |  jq -r '.assets[] | select(.name | endswith(".apk") and (contains("android32") | not)) | .browser_download_url' )
-          GEODE_NAME=$(basename "$GEODE_APK_URL" .apk)
-          echo "GEODE_APK_URL=$GEODE_APK_URL" >> $GITHUB_ENV
-          echo "GEODE_NAME=$GEODE_NAME" >> $GITHUB_ENV
-          if [[ $GEODE_NAME != $GEODE_LATEST ]] || [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]] ; then
-           curl -L "$GEODE_APK_URL" -o temp/geode.apk
-           apktool d temp/geode.apk -o temp/geode-src
-           sed -i 's/com\.geode\.launcher/com.pubg.krmobile/g' temp/geode-src/AndroidManifest.xml
-           apktool b temp/geode-src -o temp/geode-patched.apk
-           zipalign -v 4 temp/geode-patched.apk zipalign -v 4 temp/geode-aligned.apk
-           java -jar android-build-tools/android-14/lib/apksigner.jar sign \
-            --ks ks-p12.keystore \
-            --ks-type PKCS12 \
-            --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
-            --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
-            --out build/$GEODE_NAME.apk \
-            temp/geode-aligned.apk
-          fi
-
       - name: Get output
         id: get_output
         run: |
           DELIM="$(openssl rand -hex 8)"
           echo "BUILD_LOG<<${DELIM}" >> "$GITHUB_OUTPUT"
           cat build.md >> "$GITHUB_OUTPUT"
-          echo -e "Patched Dolphin SDK 29: ${DOLPHIN_NAME}\nPatched Geode: ${GEODE_NAME}\nPatched Eden PUBG: ${EDEN_NAME}\nPatched FCL CoD: ${FCL_NAME}" >> "$GITHUB_OUTPUT"
           echo "${DELIM}" >> "$GITHUB_OUTPUT"
           cp -f build.md build.tmp
 

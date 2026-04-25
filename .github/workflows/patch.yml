@@ -1,5 +1,12 @@
-name: Build Modules
+name: Patch APKs
 on:
+  workflow_call:
+    inputs:
+      from_ci:
+        type: boolean
+        required: false
+        default: true
+
   workflow_dispatch:
   schedule:
     - cron: 0 0/4 * * *
@@ -48,7 +55,7 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y jq unzip wget zip zipalign 
           wget -q https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool
-          wget -q https://github.com/iBotPeaches/Apktool/releases/download/v3.0.1/apktool_3.0.1.jar -O apktool.jar
+          wget -q $(curl -fSsL https://api.github.com/repos/iBotPeaches/Apktool/releases/latest | jq -r '.assets[0].browser_download_url') -O apktool.jar
           chmod +x apktool
           sudo mv apktool /usr/local/bin/apktool
           sudo mv apktool.jar /usr/local/bin/apktool.jar
