@@ -71,6 +71,11 @@ jobs:
          DOLPHIN_LATEST=$(gh release view $(gh release list --json tagName --jq '.[] | select(.tagName | contains("patch-")) | .tagName' --limit 1 | head -n 1) --json body --template '{{.body}}' | grep Dolphin | awk '{print $NF}')
          FCL_LATEST=$(gh release view $(gh release list --json tagName --jq '.[] | select(.tagName | contains("patch-")) | .tagName' --limit 1 | head -n 1) --json body --template '{{.body}}' | grep FCL| awk '{print $NF}')
          GEODE_LATEST=$(gh release view $(gh release list --json tagName --jq '.[] | select(.tagName | contains("patch-")) | .tagName' --limit 1 | head -n 1) --json body --template '{{.body}}' | grep Geode | awk '{print $NF}')
+         echo 'EDEN_LATEST=$EDEN_LATEST' >> $GITHUB_ENV
+         echo 'DOLPHIN_LATEST=$DOLPHIN_LATEST' >> $GITHUB_ENV
+         echo 'FCL_LATEST=$FCL_LATEST' >> $GITHUB_ENV
+         echo 'GEODE_LATEST=$GEODE_LATEST' >> $GITHUB_ENV
+         
          mkdir build
          mkdir temp
 
@@ -161,7 +166,7 @@ jobs:
           if [[ $GEODE_NAME != $GEODE_LATEST ]] || [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]] ; then
            curl -L "$GEODE_APK_URL" -o temp/geode.apk
            apktool d temp/geode.apk -o temp/geode-src
-           sed -i -e 's/package="com\.geode\.launcher"/package="com.pubg.krmobile"/' -e 's/com\.geode\.launcher/com.pubg.krmobile/g' -e '/package="com.pubg.krmobile"/a\    android:compileSdkVersion="36"\n    android:compileSdkVersionCodename="16"' temp/geode-src/AndroidManifest.xml
+           sed -i -e 's/package="com\.geode\.launcher"/package="com.pubg.krmobile"/' -e '/android:compileSdkVersion=/d' -e '/android:compileSdkVersionCodename=/d' -e '/package="com.pubg.krmobile"/a\    android:compileSdkVersion="36"\n    android:compileSdkVersionCodename="16"' -e 's/android:name="com\.geode\.launcher\.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/android:name="com.pubg.krmobile.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/g' -e 's/android:authorities="com\.geode\.launcher\.user"/android:authorities="com.pubg.krmobile.user"/' -e 's/android:authorities="com\.geode\.launcher\.fileprovider"/android:authorities="com.pubg.krmobile.fileprovider"/' -e 's/android:authorities="com\.geode\.launcher\.androidx-startup"/android:authorities="com.pubg.krmobile.androidx-startup"/' temp/geode-src/AndroidManifest.xml
            apktool b temp/geode-src -o temp/geode-patched.apk
            zipalign 4 temp/geode-patched.apk temp/geode-aligned.apk
            java -jar android-build-tools/android-14/lib/apksigner.jar sign \
