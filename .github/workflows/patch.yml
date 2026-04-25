@@ -63,6 +63,8 @@ jobs:
          DOLPHIN_LATEST=$(gh release view $(gh release list --json tagName --jq '.[] | select(.tagName | contains("patch-")) | .tagName' --limit 1 | head -n 1) --json body --template '{{.body}}' | grep Dolphin | awk '{print $NF}')
          FCL_LATEST=$(gh release view $(gh release list --json tagName --jq '.[] | select(.tagName | contains("patch-")) | .tagName' --limit 1 | head -n 1) --json body --template '{{.body}}' | grep FCL| awk '{print $NF}')
          GEODE_LATEST=$(gh release view $(gh release list --json tagName --jq '.[] | select(.tagName | contains("patch-")) | .tagName' --limit 1 | head -n 1) --json body --template '{{.body}}' | grep Geode | awk '{print $NF}')
+         mkdir build
+         mkdir temp
 
       # 🔎 Find latest Dolphin build
       - name: Find latest Dolphin build and patch
