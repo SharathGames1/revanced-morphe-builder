@@ -161,7 +161,7 @@ jobs:
           if [[ $GEODE_NAME != $GEODE_LATEST ]] || [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]] ; then
            curl -L "$GEODE_APK_URL" -o temp/geode.apk
            apktool d temp/geode.apk -o temp/geode-src
-           sed -i 's/com\.geode\.launcher/com.pubg.krmobile/g' temp/geode-src/AndroidManifest.xml
+           sed -i -e 's/package="com\.geode\.launcher"/package="com.pubg.krmobile"/' -e 's/com\.geode\.launcher/com.pubg.krmobile/g' -e '/package="com.pubg.krmobile"/a\    android:compileSdkVersion="36"\n    android:compileSdkVersionCodename="16"' temp/geode-src/AndroidManifest.xml
            apktool b temp/geode-src -o temp/geode-patched.apk
            zipalign 4 temp/geode-patched.apk temp/geode-aligned.apk
            java -jar android-build-tools/android-14/lib/apksigner.jar sign \
