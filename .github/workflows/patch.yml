@@ -61,28 +61,14 @@ jobs:
           sudo mv apktool.jar /usr/local/bin/apktool.jar
           wget -q https://dl.google.com/android/repository/build-tools_r34-linux.zip -O build-tools.zip
           unzip -q build-tools.zip -d android-build-tools
-      
-      - name: Get last version 
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-         EDEN_LATEST=$(gh release view $(gh release list --json tagName --jq '.[] | select(.tagName | contains("patch-")) | .tagName' --limit 1 | head -n 1) --json body --template '{{.body}}' | grep Eden | awk '{print $NF}' )
-         DOLPHIN_LATEST=$(gh release view $(gh release list --json tagName --jq '.[] | select(.tagName | contains("patch-")) | .tagName' --limit 1 | head -n 1) --json body --template '{{.body}}' | grep Dolphin | awk '{print $NF}')
-         FCL_LATEST=$(gh release view $(gh release list --json tagName --jq '.[] | select(.tagName | contains("patch-")) | .tagName' --limit 1 | head -n 1) --json body --template '{{.body}}' | grep FCL| awk '{print $NF}')
-         GEODE_LATEST=$(gh release view $(gh release list --json tagName --jq '.[] | select(.tagName | contains("patch-")) | .tagName' --limit 1 | head -n 1) --json body --template '{{.body}}' | grep Geode | awk '{print $NF}')
-         echo 'EDEN_LATEST=$EDEN_LATEST' >> $GITHUB_ENV
-         echo 'DOLPHIN_LATEST=$DOLPHIN_LATEST' >> $GITHUB_ENV
-         echo 'FCL_LATEST=$FCL_LATEST' >> $GITHUB_ENV
-         echo 'GEODE_LATEST=$GEODE_LATEST' >> $GITHUB_ENV
-         
-         mkdir build
-         mkdir temp
-
+          mkdir build
+          mkdir temp
+    
       # 🔎 Find latest Dolphin build
       - name: Find latest Dolphin build and patch
         continue-on-error: true
         run: |
+          DOLPHIN_LATEST=$(gh release view $(gh release list --json tagName --jq '.[] | select(.tagName | contains("patch-")) | .tagName' --limit 1 | head -n 1) --json body --template '{{.body}}' | grep Dolphin | awk '{print $NF}')
           DOLPHIN_APK_URL=$(curl -s https://dolphin-emu.org/download/ \
             | grep -Eo 'https://dl\.dolphin-emu\.org/builds/[a-z0-9/]+/dolphin-master-[0-9]+-[0-9]+\.apk' \
             | awk -F'[-/.]' '{
@@ -112,6 +98,7 @@ jobs:
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          export EDEN_LATEST=$(gh release view $(gh release list --json tagName --jq '.[] | select(.tagName | contains("patch-")) | .tagName' --limit 1 | head -n 1) --json body --template '{{.body}}' | grep Eden | awk '{print $NF}' )
           export EDEN_ID=$(gh run list -R Eden-CI/Workflow -w nightly.yml --status success --limit 1 --json databaseId -q ".[0].databaseId")
           export EDEN_NAME=$(gh run view $EDEN_ID -R Eden-CI/Workflow | grep standard.apk)
           gh api "/repos/Eden-CI/Workflow/actions/artifacts/$(gh api repos/Eden-CI/Workflow/actions/runs/$EDEN_ID/artifacts --jq '.artifacts[] | select(.name| contains("standard.apk")) | .id')/zip" > temp/eden.apk
@@ -135,6 +122,7 @@ jobs:
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          FCL_LATEST=$(gh release view $(gh release list --json tagName --jq '.[] | select(.tagName | contains("patch-")) | .tagName' --limit 1 | head -n 1) --json body --template '{{.body}}' | grep FCL| awk '{print $NF}')
           FCL_APK_URL=$(curl -fSsL https://api.github.com/repos/FCL-Team/foldcraftlauncher/releases/latest | jq -r '.assets[0].browser_download_url')
           FCL_NAME=$(basename "$FCL_APK_URL" .apk)
           echo "FCL_APK_URL=$FCL_APK_URL" >> $GITHUB_ENV
@@ -154,36 +142,13 @@ jobs:
             temp/fcl-aligned.apk
           fi
           
-      - name: Get latest Geode build and patch
-        continue-on-error: true
-        env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          GEODE_APK_URL=$(curl -fSsL https://api.github.com/repos/geode-sdk/android-launcher/releases/latest |  jq -r '.assets[] | select(.name | endswith(".apk") and (contains("android32") | not)) | .browser_download_url' )
-          GEODE_NAME=$(basename "$GEODE_APK_URL" .apk)
-          echo "GEODE_APK_URL=$GEODE_APK_URL" >> $GITHUB_ENV
-          echo "GEODE_NAME=$GEODE_NAME" >> $GITHUB_ENV
-          if [[ $GEODE_NAME != $GEODE_LATEST ]] || [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]] ; then
-           curl -L "$GEODE_APK_URL" -o temp/geode.apk
-           apktool d temp/geode.apk -o temp/geode-src
-           sed -i -e 's/package="com\.geode\.launcher"/package="com.pubg.krmobile"/' -e '/android:compileSdkVersion=/d' -e '/android:compileSdkVersionCodename=/d' -e '/package="com.pubg.krmobile"/a\    android:compileSdkVersion="36"\n    android:compileSdkVersionCodename="16"' -e 's/android:name="com\.geode\.launcher\.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/android:name="com.pubg.krmobile.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/g' -e 's/android:authorities="com\.geode\.launcher\.user"/android:authorities="com.pubg.krmobile.user"/' -e 's/android:authorities="com\.geode\.launcher\.fileprovider"/android:authorities="com.pubg.krmobile.fileprovider"/' -e 's/android:authorities="com\.geode\.launcher\.androidx-startup"/android:authorities="com.pubg.krmobile.androidx-startup"/' temp/geode-src/AndroidManifest.xml
-           apktool b temp/geode-src -o temp/geode-patched.apk
-           zipalign 4 temp/geode-patched.apk temp/geode-aligned.apk
-           java -jar android-build-tools/android-14/lib/apksigner.jar sign \
-            --ks ks-p12.keystore \
-            --ks-type PKCS12 \
-            --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
-            --ks-pass pass:${{ secrets.KEYSTORE_PASS }} \
-            --out build/$GEODE_NAME.apk \
-            temp/geode-aligned.apk
-          fi
 
       - name: Get output
         id: get_output
         run: |
           DELIM="$(openssl rand -hex 8)"
           echo "BUILD_LOG<<${DELIM}" >> "$GITHUB_OUTPUT"
-          echo -e "Patched Dolphin SDK 29: ${DOLPHIN_NAME}\nPatched Geode: ${GEODE_NAME}\nPatched Eden PUBG: ${EDEN_NAME}\nPatched FCL CoD: ${FCL_NAME}" >> "$GITHUB_OUTPUT"
+          echo -e "Patched Dolphin SDK 29: ${DOLPHIN_NAME}\nPatched Eden PUBG: ${EDEN_NAME}\nPatched FCL CoD: ${FCL_NAME}" >> "$GITHUB_OUTPUT"
           echo "${DELIM}" >> "$GITHUB_OUTPUT"
 
       - name: Upload release
