@@ -67,8 +67,10 @@ jobs:
       # 🔎 Find latest Dolphin build
       - name: Find latest Dolphin build and patch
         continue-on-error: true
+        env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          DOLPHIN_LATEST=$(gh release view $(gh release list --json tagName --jq '.[] | select(.tagName | contains("patch-")) | .tagName' --limit 1 | head -n 1) --json body --template '{{.body}}' | grep Dolphin | awk '{print $NF}')
+          export DOLPHIN_LATEST=$(gh release view $(gh release list --json tagName --jq '.[] | select(.tagName | contains("patch-")) | .tagName' --limit 1 | head -n 1) --json body --template '{{.body}}' | grep Dolphin | awk '{print $NF}')
           DOLPHIN_APK_URL=$(curl -s https://dolphin-emu.org/download/ \
             | grep -Eo 'https://dl\.dolphin-emu\.org/builds/[a-z0-9/]+/dolphin-master-[0-9]+-[0-9]+\.apk' \
             | awk -F'[-/.]' '{
@@ -79,7 +81,7 @@ jobs:
           echo "DOLPHIN_APK_URL=$DOLPHIN_APK_URL" >> $GITHUB_ENV
           echo "DOLPHIN_NAME=$DOLPHIN_NAME" >> $GITHUB_ENV
           echo 
-          if [[ $DOLPHIN_NAME != $DOLPHIN_LATEST ]] || [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+          if [[ $DOLPHIN_NAME != $DOLPHIN_LATEST ]] ;then #|| [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
            curl -L "$DOLPHIN_APK_URL" -o temp/dolphin.apk
            apktool d temp/dolphin.apk -o temp/dolphin-src
            sed -i -E 's/^( *targetSdkVersion: *)[0-9]+/\129/' temp/dolphin-src/apktool.yml
