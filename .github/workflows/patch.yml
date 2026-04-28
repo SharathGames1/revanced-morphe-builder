@@ -78,7 +78,7 @@ jobs:
           DOLPHIN_NAME=$(basename "$DOLPHIN_APK_URL" .apk)
           echo "DOLPHIN_APK_URL=$DOLPHIN_APK_URL" >> $GITHUB_ENV
           echo "DOLPHIN_NAME=$DOLPHIN_NAME" >> $GITHUB_ENV
-          env
+          echo 
           if [[ $DOLPHIN_NAME != $DOLPHIN_LATEST ]] || [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
            curl -L "$DOLPHIN_APK_URL" -o temp/dolphin.apk
            apktool d temp/dolphin.apk -o temp/dolphin-src
@@ -147,6 +147,8 @@ jobs:
       - name: Get output
         id: get_output
         run: |
+          echo $FCL_LATEST
+          echo $GITHUB_EVENT_NAME
           DELIM="$(openssl rand -hex 8)"
           echo "BUILD_LOG<<${DELIM}" >> "$GITHUB_OUTPUT"
           echo -e "Patched Dolphin SDK 29: ${DOLPHIN_NAME}\nPatched Eden PUBG: ${EDEN_NAME}\nPatched FCL CoD: ${FCL_NAME}" >> "$GITHUB_OUTPUT"
