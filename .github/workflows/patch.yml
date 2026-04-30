@@ -162,4 +162,4 @@ jobs:
           TAG: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
           BODY: ${{ steps.get_output.outputs.BUILD_LOG }}
         run: |
-            gh release create "$TAG" ./build/* --title "Release" --notes "$BODY"
+          [[ $(find -H "./build" -maxdepth 0 -type d -empty) ]] ||  gh release create "$TAG" ./build/* --title "Release" --notes "$BODY"
