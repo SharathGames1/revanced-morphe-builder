@@ -3,22 +3,6 @@ remove-rv-integrations-checks = true
 
 # ReVanced Extended by anddea
 
-[YouTube]
-app-name = "YouTube RVX"
-apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
-#direct-dlurl="https://github.com/SharathGames1/APKs/releases/download/1/com.google.android.youtube_20.25.37-1555295680_minAPI26.arm64-v8a.armeabi-v7a.x86.x86_64.nodpi._apkmirror.com.1.apk"
-uptodown-dlurl = "https://youtube.en.uptodown.com/android"
-patches-source = "anddea/revanced-patches"
-patches-version = "dev"
-cli-version = "latest"
-cli-source = "MorpheApp/morphe-cli"
-version = "20.25.37"
-included-patches = "'Hide Shorts dimming' 'MaterialYou'"
-patcher-args = "-e 'Custom branding name for YouTube' -OappName='YouTube RVX anddea' -e 'Settings for YouTube' -OrvxSettingsLabel='ReVanced Extended' -e 'Theme' -OdarkThemeBackgroundColor=#ff000000 --continue-on-error"
-build-mode = "both"
-enabled = "false"
-#Morphe
-
 [YouTube-Morphe]
 app-name = "YouTube Morphe"
 ##archive-dlurl = "https://archive.org/download/com.google.android.youtube-20.25.37-1555295680-min-api-26arm-64-v-8aarmeabi-v-7a/com.google.android.youtube/"
@@ -54,6 +38,7 @@ apkmirror-dlurl = "https://apkmirror.com/apk/twitter-inc/twitter/"
 uptodown-dlurl = "https://twitter.en.uptodown.com/android"
 included-patches = "'Dynamic color'"
 cli-source = "MorpheApp/morphe-cli"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.twitter.android"
 patches-version = "dev"
 cli-version = "latest"
 build-mode = "apk"
