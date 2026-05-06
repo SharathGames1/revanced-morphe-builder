@@ -8,6 +8,4 @@ build.md
 cmpr
 *.env
 *.keystore
-
-!base-v17.24.34.apk
-.v*
+*-temporary-files
