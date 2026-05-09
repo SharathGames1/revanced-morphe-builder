@@ -237,7 +237,7 @@ _req() {
 		mv -f "$dlp" "$op"
 	fi
 }
-req() { _req "$1" "$2" -H "User-Agent: $user_agent" --header="Content-Type: application/octet-stream" --header="Accept-Language: en-US,en;q=0.9" --header="Connection: keep-alive" --header="Upgrade-Insecure-Requests: 1" --header="Cache-Control: max-age=0" --header="Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"; }
+req() { _req "$1" "$2" -H "User-Agent: $user_agent" -H "Content-Type: application/octet-stream" -H "Accept-Language: en-US,en;q=0.9" -H "Connection: keep-alive" -H "Upgrade-Insecure-Requests: 1" -H "Cache-Control: max-age=0" -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"; }
 gh_req() { _req "$1" "$2" -H "$GH_HEADER"; }
 gh_dl() {
 	if [ ! -f "$1" ]; then
