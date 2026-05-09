@@ -17,7 +17,7 @@ cli-version = "latest"
 excluded-patches = "'Change header'"
 patcher-args = "-e 'Custom branding' -OcustomName='YouTube Morphe'  -e 'Theme' -OdarkThemeBackgroundColor=#000000"
 build-mode = "both"
-#enabled= "false"
+enabled= "false"
 
 #hoo-dles
 
@@ -46,6 +46,7 @@ build-mode = "apk"
 patches-source = "crimera/piko"
 patcher-args = "--continue-on-error"
 version = "11.81.0-release.0"
+enabled = "false"
 
 [Instagram]
 apkmirror-dlurl = "https://apkmirror.com/apk/instagram/instagram-instagram/"
@@ -57,6 +58,6 @@ patches-version = "dev"
 cli-version = "latest"
 build-mode = "apk"
 patches-source = "crimera/piko"
-#enabled = "false"
+enabled = "false"
 
 
